@@ -1,0 +1,19 @@
+[CassandraClient]
+title=Cassandra Database Client
+description=Cassandra Database Client Access Firewall Rules
+ports=9160/tcp
+
+[CassandraInterNode]
+title=Cassandra Database Inter-Node Communications
+description=Cassandra Database Inter-Node Communications Firewall Rules
+ports=7000/tcp
+
+[CassandraInterNodeSecure]
+title=Cassandra Database Secure Inter-Node Communications
+description=Cassandra Database Inter-Node Secure (SSL) Communications Firewall Rules
+ports=7001/tcp
+
+[CassandraJMX]
+title=Cassandra Database Java Management Extensions
+description=Cassandra Database JMX Access Firelwall Rules
+ports=7199/tcp

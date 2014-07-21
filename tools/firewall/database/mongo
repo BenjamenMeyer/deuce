@@ -1,0 +1,20 @@
+[MongoInstance]
+title=Mongo Database Instance
+description=Mongo Database Instance  Firewall Rules
+ports=27017/tcp
+
+[MongoConfig]
+title=Mongo Database Config Server
+description=Mongo Database Configuration Server Firewall Rules
+ports=27019/tcp
+
+[MongoShard]
+title=Mongo Database Shard
+description=Mongo Database Shard Firewall Rules
+ports=27018/tcp
+
+[MongoMonitoring]
+title=Mongo Monitoring
+description=Mongo Monitoring Firewall Rules
+ports=28018/tcp
+
