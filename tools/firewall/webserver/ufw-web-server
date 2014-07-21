@@ -1,0 +1,9 @@
+[DeuceWebServer]
+title=Deuce Web Server Host
+description=Publically accessible web node for interacting with Deuce
+ports=80/tcp
+
+[DeuceSecureWebServer]
+title=Deuce Secure (SSL) Web Server Host
+description=Publically accessible web node for interacting with Deuce
+ports=443/tcp

@@ -1,0 +1,6 @@
+
+# HTTP Server
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 80 -j ACCEPT
+
+# HTTPS Server
+#-A INPUT -p tcp -m state --state NEW -m tcp --dport 443 -j ACCEPT

@@ -1,12 +1,12 @@
 
 # Mongo Instance
- INPUT -p tcp -m state --state NEW -m tcp --dport 27017 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 27017 -j ACCEPT
 
 # Mongo Config Server
-# INPUT -p tcp -m state --state NEW -m tcp --dport 27019 -j ACCEPT
+#-A INPUT -p tcp -m state --state NEW -m tcp --dport 27019 -j ACCEPT
 
 # Mongo Shard Server
-# INPUT -p tcp -m state --state NEW -m tcp --dport 27018 -j ACCEPT
+#-A INPUT -p tcp -m state --state NEW -m tcp --dport 27018 -j ACCEPT
 
 # Mongo Monitoring
- INPUT -p tcp -m state --state NEW -m tcp --dport 28018 -j ACCEPT
+-A INPUT -p tcp -m state --state NEW -m tcp --dport 28018 -j ACCEPT
