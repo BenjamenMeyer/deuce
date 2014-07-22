@@ -36,6 +36,7 @@ For UFW Application Profiles, copy the files to /etc/ufw/applications.d.
 The profile then becomes accessible via the command:
 
 .. code-block:: bash
+
 	# ufw app list
 
 RAW IPTables Rules
@@ -54,6 +55,7 @@ Scripts specific to Deuce itself can be found in the 'deuce' directory.
 Do the following to enable using UFW:
 
 .. code-block:: bash
+
 	# ufw allow DEUCE
 
 Note: These scripts are provided when using Deuce directly and not through a
@@ -70,11 +72,13 @@ The scripts support both HTTP and HTTPS functionality.
 To enable HTTP using UFW:
 
 .. code-block:: bash
+
 	# ufw allow DeuceWebServer
 
 To enable HTTPS using UFW:
 
 .. code-block:: bash
+
 	# ufw allow DeuceSecureWebServer
 
 =========
@@ -99,21 +103,25 @@ These scripts will need to be put on each of the systems comprising the deployme
 When using UFW, the basic MongoDB instance can be allowed using the following:
 
 .. code-block:: bash
+
 	# ufw allow MongoInstance
 
 If Sharding is in use, then the sharding server can be enabled via UFW:
 
 .. code-block:: bash
+
 	# ufw allow MongoShard
 
 If a Config server is in use, it can be enabled via UFW:
 
 .. code-block:: bash
+
 	# ufw allow MongoConfig
 
 The Mongo Monitoring can be enabled via UFW on all portions of the deployment using:
 
 .. code-block:: bash
+
 	# ufw allow MongoMonitoring
 
 Cassandra
@@ -125,11 +133,13 @@ need to be added on all systems.
 Cassandra Clients can be allowed via UFW as follows:
 
 .. code-block:: bash
+
 	# ufw allow CassandraClient
 
 Cassandra JMX (Java Management Extension) can be allowed via UFW as follows:
 
 .. code-block:: bash
+
 	# ufw allow CassandraJMX
 
 Cassandra uses multiple nodes which have inter-connection channels. The channels can either
@@ -138,10 +148,12 @@ be unsecure or secure (SSL). Application profiles have been provided for both.
 To allow the unsecure inter-connection via UFW:
 
 .. code-block:: bash
+
 	# ufw allow CassandraInterNode
 
 To allow the secure (SSL) inter-connection via UFW:
 
 .. code-block:: bash
+
 	# ufw allow CassandraInterNodeSecure
 

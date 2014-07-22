@@ -124,6 +124,7 @@ Note: Under a Linux host server this could simply be a symlink.
 5. Start Deuce under gunicorn:
 
 .. code-block:: bash
+
 	$ gunicorn_pecan config.py
 
 6. Restart Nginx
