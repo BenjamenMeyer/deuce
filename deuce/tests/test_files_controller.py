@@ -12,6 +12,8 @@ from deuce.drivers.sqlite import SqliteStorageDriver
 from random import randrange
 import uuid
 
+import json
+
 
 class TestFilesController(FunctionalTest):
 
@@ -21,7 +23,9 @@ class TestFilesController(FunctionalTest):
         self.file_list = []
         self.max_ret_num = conf.api_configuration.max_returned_num
         self.total_file_num = 0
-        self._hdrs = {"X-Project-ID": "test_project_id"}
+
+        self._hdrs = {"x-project-id": 'testfilectrl',
+            "x-auth-token": ''}
 
         # Create a vault and a file for us to work with
         self.project_id = 'test_project_id'

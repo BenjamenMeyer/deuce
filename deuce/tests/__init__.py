@@ -47,6 +47,9 @@ def setUp():
     conf_dict['block_storage_driver']['swift']['swift_module'] = \
         'deuce.tests.db_mocking.swift_mocking'
     conf_dict['block_storage_driver']['swift']['is_mocking'] = True
+    # conf_dict['block_storage_driver']['swift']['swift_module'] = \
+    #     'swiftclient'
+    # conf_dict['block_storage_driver']['swift']['is_mocking'] = False
 
     # To add for-test-only items.
     # conf_dict['metadata_driver']['mongodb']['foo'] = 'bar'

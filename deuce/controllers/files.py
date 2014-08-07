@@ -27,7 +27,8 @@ class FilesController(RestController):
     @validate(vault_id=VaultGetRule, file_id=FileGetRule)
     def delete(self, vault_id, file_id):
 
-        vault = Vault.get(request.project_id, vault_id)
+        vault = Vault.get(request.project_id, vault_id,
+                request.auth_token)
         if not vault:
             abort(404)
 
@@ -41,7 +42,8 @@ class FilesController(RestController):
     @validate(vault_id=VaultGetRule, marker=FileMarkerRule, limit=LimitRule)
     def get_all(self, vault_id):
         response.headers["Transaction-ID"] = request.context.request_id
-        vault = Vault.get(request.project_id, vault_id)
+        vault = Vault.get(request.project_id, vault_id,
+                request.auth_token)
 
         if not vault:
             logger.error('Vault [{0}] does not exist'.format(vault_id))
@@ -79,7 +81,8 @@ class FilesController(RestController):
         """Fetches, re-assembles and streams a single
         file out of Deuce"""
         response.headers["Transaction-ID"] = request.context.request_id
-        vault = Vault.get(request.project_id, vault_id)
+        vault = Vault.get(request.project_id, vault_id,
+                request.auth_token)
 
         if not vault:
             logger.error('Vault [{0}] does not exist'.format(vault_id))
@@ -100,8 +103,8 @@ class FilesController(RestController):
         block_ids = [block[0] for block in sorted(block_gen,
             key=lambda block: block[1])]
 
-        objs = deuce.storage_driver.create_blocks_generator(
-            request.project_id, vault_id, block_ids)
+        objs = vault.get_blocks_generator(block_ids,
+            auth_token=request.auth_token)
 
         response.body_file = FileCat(objs)
         response.status_code = 200
@@ -114,7 +117,8 @@ class FilesController(RestController):
         header
         """
         response.headers["Transaction-ID"] = request.context.request_id
-        vault = Vault.get(request.project_id, vault_id)
+        vault = Vault.get(request.project_id, vault_id,
+                request.auth_token)
 
         # caller tried to post to a vault that
         # does not exist

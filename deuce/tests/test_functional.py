@@ -10,14 +10,17 @@ class TestRootController(FunctionalTest):
         response = self.app.get('/', expect_errors=True)
         assert response.status_int == 400
 
-        response = self.app.get('/', headers={'x-project-id': 'blah'})
+        response = self.app.get('/', headers={'x-project-id': 'blah',
+            'x-auth-token': 'good'})
         assert response.status_int == 200
 
     def test_get_10(self):
-        response = self.app.get('/v1.0', headers={'x-project-id': 'blah'})
+        response = self.app.get('/v1.0', headers={'x-project-id': 'blah',
+            'x-auth-token': 'good'})
 
     def test_get_not_found(self):
         response = self.app.get('/a/bogus/url',
-            headers={'x-project-id': 'blah'}, expect_errors=True)
+            headers={'x-project-id': 'blah', 'x-auth-token': 'good'},
+            expect_errors=True)
 
         assert response.status_int == 404

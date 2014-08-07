@@ -7,6 +7,8 @@ from six.moves.urllib.parse import urlparse, parse_qs
 from unittest import TestCase
 from deuce.tests import FunctionalTest
 
+import json
+
 
 class TestBlocksController(FunctionalTest):
 
@@ -18,7 +20,8 @@ class TestBlocksController(FunctionalTest):
         self._vault_path = '/v1.0/{0}'.format(vault_name)
         self._blocks_path = '{0}/blocks'.format(self._vault_path)
 
-        self._hdrs = {"X-Project-ID": "sample_project_id"}
+        self._hdrs = {"x-project-id": 'testblockctrl',
+            "x-auth-token": ''}
 
         response = self.app.put(self._vault_path,
             headers=self._hdrs)
@@ -30,6 +33,11 @@ class TestBlocksController(FunctionalTest):
         # Try listing the blocks. There should be none
         response = self.app.get(self._blocks_path, headers=self._hdrs)
         assert response.json_body == []
+
+        response = self.app.get(self._blocks_path, headers={
+            "X-Username": "failing_auth_hook",
+            "X-Password": "failing_auth_hook"},
+            expect_errors=True)
 
     def _create_block_id(data=None):
         """Creates a block ID for testing purpose"""

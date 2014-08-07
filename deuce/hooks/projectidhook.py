@@ -16,8 +16,8 @@ class ProjectIDHook(PecanHook):
         # Enforce the existence of the x-project-id header and assign
         # the value to the request project id.
         try:
-            hdr_name = 'x-project-id'
-            state.request.project_id = state.request.headers[hdr_name]
+            state.request.project_id = state.request.headers['x-project-id']
+            state.request.auth_token = state.request.headers['x-auth-token']
             # TODO: validate the project_id
         except KeyError:
             # Invalid request

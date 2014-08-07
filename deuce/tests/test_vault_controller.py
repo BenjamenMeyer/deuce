@@ -1,14 +1,17 @@
 from unittest import TestCase
 from webtest import TestApp
 from deuce.tests import FunctionalTest
+import os
+
+import json
 
 
 class TestVaultController(FunctionalTest):
 
     def setUp(self):
         super(TestVaultController, self).setUp()
-
-        self._hdrs = {"X-Project-ID": "sample_project_id"}
+        self._hdrs = {"x-project-id": 'testvaultctrl',
+            "x-auth-token": ''}
 
     def test_vault_leaf(self):
         response = self.app.get('/v1.0/', headers=self._hdrs,
