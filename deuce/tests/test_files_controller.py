@@ -28,8 +28,8 @@ class TestFilesController(FunctionalTest):
             "x-auth-token": ''}
 
         # Create a vault and a file for us to work with
-        self.project_id = 'test_project_id'
-        self.vault_id = 'files_vault_test'
+        self.project_id = self.create_project_id()
+        self.vault_id = self.create_vault_id()
         self._vault_path = '/v1.0/' + self.vault_id
         self._files_path = self._vault_path + '/files'
         self._blocks_path = self._vault_path + '/blocks'

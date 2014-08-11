@@ -1,8 +1,6 @@
 from pecan import conf
 
-import hashlib
 import os
-import uuid
 from deuce.tests import FunctionalTest
 from deuce.drivers.metadatadriver import MetadataStorageDriver, GapError,\
     OverlapError
@@ -13,20 +11,6 @@ class SqliteStorageDriverTest(FunctionalTest):
 
     def create_driver(self):
         return SqliteStorageDriver()
-
-    def _create_block_id(self, data=None):
-        sha1 = hashlib.sha1()
-        sha1.update(data or os.urandom(2048))
-        return sha1.hexdigest()
-
-    def _create_vault_id(self):
-        """Creates a dummy vault ID. This could be
-        anything, but for ease-of-use we just make it
-        a uuid"""
-        return str(uuid.uuid4())
-
-    def _create_file_id(self):
-        return str(uuid.uuid4())
 
     def test_basic_construction(self):
         driver = SqliteStorageDriver()
@@ -39,9 +23,9 @@ class SqliteStorageDriverTest(FunctionalTest):
     def test_file_crud(self):
         driver = self.create_driver()
 
-        project_id = 'project_id'
-        vault_id = self._create_vault_id()
-        file_id = self._create_file_id()
+        project_id = self.create_project_id()
+        vault_id = self.create_vault_id()
+        file_id = self.create_file_id()
 
         assert not driver.has_file(project_id, vault_id, file_id)
 
@@ -58,9 +42,9 @@ class SqliteStorageDriverTest(FunctionalTest):
     def test_finalize_empty_file(self):
         driver = self.create_driver()
 
-        project_id = 'project_id'
-        vault_id = self._create_vault_id()
-        file_id = self._create_file_id()
+        project_id = self.create_project_id()
+        vault_id = self.create_vault_id()
+        file_id = self.create_file_id()
 
         driver.create_file(project_id, vault_id, file_id)
 
@@ -73,9 +57,9 @@ class SqliteStorageDriverTest(FunctionalTest):
     def test_finalize_nonexistent_file(self):
         driver = self.create_driver()
 
-        project_id = 'project_id'
-        vault_id = self._create_vault_id()
-        file_id = self._create_file_id()
+        project_id = self.create_project_id()
+        vault_id = self.create_vault_id()
+        file_id = self.create_file_id()
 
         assert not driver.has_file(project_id, vault_id, file_id)
         retval = driver.finalize_file(project_id, vault_id, file_id)
@@ -91,9 +75,9 @@ class SqliteStorageDriverTest(FunctionalTest):
     def test_block_crud(self):
         driver = self.create_driver()
 
-        project_id = 'project_id'
-        vault_id = self._create_vault_id()
-        block_id = self._create_block_id()
+        project_id = self.create_project_id()
+        vault_id = self.create_vault_id()
+        block_id = self.create_block_id()
         size = 4096
 
         assert not driver.has_block(project_id, vault_id, block_id)
@@ -121,9 +105,13 @@ class SqliteStorageDriverTest(FunctionalTest):
 
         driver = self.create_driver()
 
+        # So for some reason this fails on line 176 if
+        # if project_id is set to a 'project_<UUID>' but
+        # passes if set to 'project_id'.
         project_id = 'project_id'
-        vault_id = self._create_vault_id()
-        file_id = self._create_file_id()
+        # project_id = self.create_project_id()
+        vault_id = self.create_vault_id()
+        file_id = self.create_file_id()
 
         normal_block_size = 333
         gap_block_size = 222
@@ -304,12 +292,12 @@ class SqliteStorageDriverTest(FunctionalTest):
         # Adds a bunch of files and checks the generator
         driver = self.create_driver()
 
-        project_id = 'project_id'
-        vault_id = self._create_vault_id()
+        project_id = self.create_project_id()
+        vault_id = self.create_vault_id()
         num_files = 10
 
         # Create a list of 100 files
-        file_ids = [self._create_file_id() for _ in range(0, num_files)]
+        file_ids = [self.create_file_id() for _ in range(0, num_files)]
 
         for file_id in file_ids:
             assert not driver.has_file(project_id, vault_id, file_id)

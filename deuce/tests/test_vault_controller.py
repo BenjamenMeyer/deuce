@@ -32,7 +32,7 @@ class TestVaultController(FunctionalTest):
         self.assertEqual(response.status_int, 404)
 
     def test_vault_crud(self):
-        vault_name = 'my_new_vault'
+        vault_name = self.create_vault_id()
         vault_path = '/v1.0/{0}'.format(vault_name)
 
         # If we try to get the vault before it exists, it should

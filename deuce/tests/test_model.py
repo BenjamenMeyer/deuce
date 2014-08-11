@@ -10,8 +10,8 @@ class TestModel(FunctionalTest):
     def setUp(self):
         super(TestModel, self).setUp()
 
-        self.project_id = 'test_project_id'
-        self.auth_token = 'test_auth_token'
+        self.project_id = self.create_project_id()
+        self.auth_token = self.create_auth_token()
 
     def test_get_nonexistent_block(self):
         v = Vault.get(self.project_id, 'should_not_exist',
@@ -19,7 +19,7 @@ class TestModel(FunctionalTest):
         assert v is None
 
     def test_vault_crud(self):
-        vault_id = 'my_vault_id_1'
+        vault_id = self.create_vault_id()
 
         v = Vault.get(self.project_id, vault_id,
                 self.auth_token)
@@ -36,7 +36,7 @@ class TestModel(FunctionalTest):
         assert v is None
 
     def test_file_crud(self):
-        vault_id = 'my_vault_id_2'
+        vault_id = self.create_vault_id()
 
         v = Vault.create(self.project_id, vault_id,
                 self.auth_token)
@@ -57,7 +57,7 @@ class TestModel(FunctionalTest):
         assert file2.project_id == self.project_id
 
     def test_block_crud(self):
-        vault_id = 'block_test_vault'
+        vault_id = self.create_vault_id()
 
         v = Vault.create(self.project_id, vault_id,
                 self.auth_token)

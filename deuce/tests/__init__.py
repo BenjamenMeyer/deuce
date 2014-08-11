@@ -1,4 +1,6 @@
 import os
+import hashlib
+import uuid
 from unittest import TestCase
 from pecan import set_config
 import pecan
@@ -86,3 +88,27 @@ class FunctionalTest(TestCase):
 
     def tearDown(self):
         set_config({}, overwrite=True)
+
+    def create_auth_token(self):
+        """Create a dummy Auth Token."""
+        return 'auth_{0:}'.format(str(uuid.uuid4()))
+
+    def create_project_id(self):
+        """Create a dummy project ID. This could be
+        anything, but for ease-of-use we just make it
+        a uuid"""
+        return 'project_{0:}'.format(str(uuid.uuid4()))
+
+    def create_block_id(self, data=None):
+        sha1 = hashlib.sha1()
+        sha1.update(data or os.urandom(2048))
+        return sha1.hexdigest()
+
+    def create_vault_id(self):
+        """Creates a dummy vault ID. This could be
+        anything, but for ease-of-use we just make it
+        a uuid"""
+        return 'vault_{0:}'.format(str(uuid.uuid4()))
+
+    def create_file_id(self):
+        return str(uuid.uuid4())
