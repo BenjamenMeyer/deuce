@@ -91,6 +91,11 @@ storage. Currently there are three providers: SQLite, MongoDB, and Cassandra.
 The SQLite driver does not require any firewall rules as it is local to the
 system.
 
+WARNING
+-------
+The below are examples of how to configure the back-ends and are not guaranteed
+to be accurate or correct for your network configuration.
+
 MongoDB
 -------
 
@@ -99,8 +104,8 @@ rules provided allow the user to select the appropriate rules for the MongoDB
 deployment that is in use.
 
 Note: The below examples assume that the systems share a network in the
-172.16.0.0/24 address block. Update the 172.16.0.0/24 values to match your
-network configuration.
+172.16.0.0/24 address block accessible via eth0. Update the 172.16.0.0/24 and
+eth0 values to match your network configuration.
 
 When using UFW, the basic MongoDB instance can be allowed using the following:
 
@@ -108,11 +113,23 @@ When using UFW, the basic MongoDB instance can be allowed using the following:
 
 	# ufw allow from 172.16.0.0/24 to any port 27017
 
+or for direct IPTables:
+
+.. code-block:: bash
+
+	# iptables -A INPUT -i eth0 -p tcp --dport 27017 -m state --state NEW,ESTABLISHED -j ACCEPT
+
 If Sharding is in use, then the sharding server can be enabled via UFW:
 
 .. code-block:: bash
 
 	# ufw allow from 172.16.0.0/24 to any port 27018
+
+or for direct IPTables:
+
+.. code-block:: bash
+
+	# iptables -A INPUT -i eth0 -p tcp --dport 27018 -m state --state NEW,ESTABLISHED -j ACCEPT
 
 If a Config server is in use, it can be enabled via UFW:
 
@@ -120,11 +137,23 @@ If a Config server is in use, it can be enabled via UFW:
 
 	# ufw allow from 172.16.0.0/24 to any port 27019
 
+or for direct IPTables:
+
+.. code-block:: bash
+
+	# iptables -A INPUT -i eth0 -p tcp --dport 27019 -m state --state NEW,ESTABLISHED -j ACCEPT
+
 The Mongo Monitoring can be enabled via UFW on all portions of the deployment using:
 
 .. code-block:: bash
 
 	# ufw allow from 172.16.0.0/24 to any port 28018
+
+or for direct IPTables:
+
+.. code-block:: bash
+
+	# iptables -A INPUT -i eth0 -p tcp --dport 28018 -m state --state NEW,ESTABLISHED -j ACCEPT
 
 Cassandra
 ---------
@@ -133,8 +162,8 @@ Cassanda has a number of different parts that are part of its deployment. The ru
 need to be added on all systems.
 
 Note: The below examples assume that the systems share a network in the
-172.16.0.0/24 address block Update the 172.16.0.0/24 values to match your
-network configuration..
+172.16.0.0/24 address block accessible via eth0. Update the 172.16.0.0/24 and
+eth0 values to match your network configuration.
 
 Cassandra Clients can be allowed via UFW as follows:
 
@@ -142,11 +171,23 @@ Cassandra Clients can be allowed via UFW as follows:
 
 	# ufw allow from 172.16.0.0/24 to any port 9160
 
+or for direct IPTables:
+
+.. code-block:: bash
+
+	# iptables -A INPUT -i eth0 -p tcp --dport 9160 -m state --state NEW,ESTABLISHED -j ACCEPT
+
 Cassandra JMX (Java Management Extension) can be allowed via UFW as follows:
 
 .. code-block:: bash
 
 	# ufw allow from 172.16.0.0/24 to any port 7199
+
+or for direct IPTables:
+
+.. code-block:: bash
+
+	# iptables -A INPUT -i eth0 -p tcp --dport 7199 -m state --state NEW,ESTABLISHED -j ACCEPT
 
 Cassandra uses multiple nodes which have inter-connection channels. The channels can either
 be unsecure or secure (SSL). Application profiles have been provided for both.
@@ -157,9 +198,21 @@ To allow the unsecure inter-connection via UFW:
 
 	# ufw allow from 172.16.0.0/24 to any port 7000
 
+or for direct IPTables:
+
+.. code-block:: bash
+
+	# iptables -A INPUT -i eth0 -p tcp --dport 7000 -m state --state NEW,ESTABLISHED -j ACCEPT
+
 To allow the secure (SSL) inter-connection via UFW:
 
 .. code-block:: bash
 
 	# ufw allow from 172.16.0.0/24 to any port 7001
+
+or for direct IPTables:
+
+.. code-block:: bash
+
+	# iptables -A INPUT -i eth0 -p tcp --dport 7001 -m state --state NEW,ESTABLISHED -j ACCEPT
 
