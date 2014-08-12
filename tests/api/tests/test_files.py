@@ -81,6 +81,10 @@ class TestFileBlockUploaded(base.TestBase):
 
     def tearDown(self):
         super(TestFileBlockUploaded, self).tearDown()
+        [self.client.delete_file(vaultname=self.vaultname,
+            fileid=fileid) for fileid in self.files]
+        [self.client.delete_block(self.vaultname, block.Id) for block in
+            self.blocks]
         self.client.delete_vault(self.vaultname)
 
 
@@ -117,6 +121,8 @@ class TestEmptyFile(base.TestBase):
 
     def tearDown(self):
         super(TestEmptyFile, self).tearDown()
+        [self.client.delete_file(vaultname=self.vaultname,
+            fileid=fileid) for fileid in self.files]
         self.client.delete_vault(self.vaultname)
 
 
@@ -144,6 +150,10 @@ class TestFileAssignedBlocks(base.TestBase):
 
     def tearDown(self):
         super(TestFileAssignedBlocks, self).tearDown()
+        [self.client.delete_file(vaultname=self.vaultname,
+            fileid=fileid) for fileid in self.files]
+        [self.client.delete_block(self.vaultname, block.Id) for block in
+            self.blocks]
         self.client.delete_vault(self.vaultname)
 
 
@@ -173,6 +183,10 @@ class TestFileMissingBlock(base.TestBase):
 
     def tearDown(self):
         super(TestFileMissingBlock, self).tearDown()
+        [self.client.delete_file(vaultname=self.vaultname,
+            fileid=fileid) for fileid in self.files]
+        [self.client.delete_block(self.vaultname, block.Id) for block in
+            self.blocks]
         self.client.delete_vault(self.vaultname)
 
 
@@ -285,6 +299,10 @@ class TestListBlocksOfFile(base.TestBase):
 
     def tearDown(self):
         super(TestListBlocksOfFile, self).tearDown()
+        [self.client.delete_file(vaultname=self.vaultname,
+            fileid=fileid) for fileid in self.files]
+        [self.client.delete_block(self.vaultname, block.Id) for block in
+            self.blocks]
         self.client.delete_vault(self.vaultname)
 
 
@@ -338,6 +356,10 @@ class TestFinalizedFile(base.TestBase):
 
     def tearDown(self):
         super(TestFinalizedFile, self).tearDown()
+        [self.client.delete_file(vaultname=self.vaultname,
+            fileid=fileid) for fileid in self.files]
+        [self.client.delete_block(self.vaultname, block.Id) for block in
+            self.blocks]
         self.client.delete_vault(self.vaultname)
 
 
@@ -355,6 +377,7 @@ class TestMultipleFinalizedFiles(base.TestBase):
             self.assign_all_blocks_to_file()
             self.blocks_file.append(self.blocks)
             self.finalize_file()
+        self.created_files = self.files[:]
 
     def test_list_multiple_files(self):
         """List multiple files (20)"""
@@ -431,4 +454,8 @@ class TestMultipleFinalizedFiles(base.TestBase):
 
     def tearDown(self):
         super(TestMultipleFinalizedFiles, self).tearDown()
+        [self.client.delete_file(vaultname=self.vaultname,
+            fileid=fileid) for fileid in self.created_files]
+        [self.client.delete_block(self.vaultname, block.Id) for block in
+            self.blocks]
         self.client.delete_vault(self.vaultname)

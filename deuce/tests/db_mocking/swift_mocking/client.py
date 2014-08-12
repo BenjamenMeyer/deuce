@@ -32,9 +32,18 @@ def _get_vault_path(vault_id):
     return os.path.join(container_path, vault_id)
 
 
-def _get_block_path(vault_id, block_id):
+def _get_vault_block_path(vault_id):
     vault_path = _get_vault_path(vault_id)
-    return os.path.join(vault_path, str(block_id))
+    return os.path.join(vault_path, 'blocks')
+
+
+def _get_block_path(vault_id, block_id):
+    if block_id.startswith('blocks/'):
+        vault_path = _get_vault_path(vault_id)
+        return os.path.join(vault_path, str(block_id))
+    else:
+        vault_block_path = _get_vault_block_path(vault_id)
+        return os.path.join(vault_block_path, str(block_id))
 
 
 # Create Vault
@@ -51,7 +60,7 @@ def put_container(url,
     else:
         raise ClientException('mocking')
 
-    block_path = os.path.join(path, 'blocks')
+    block_path = _get_vault_block_path(container)
     if not os.path.exists(block_path):
         shutil.os.makedirs(block_path)
     response_dict['status'] = 201
@@ -89,7 +98,7 @@ def delete_container(url,
             "%a, %d %b %Y %H:%M:%S %Z")
 
         path = _get_vault_path(container)
-        blockpath = os.path.join(path, 'blocks')
+        blockpath = _get_vault_block_path(container)
 
         response_dict['x-vault-path'] = path
         response_dict['x-block-path'] = blockpath
@@ -144,7 +153,7 @@ def put_object(url,
     if mock_drop_connection_status:
         raise ClientException('mocking network drop')
 
-    blocks_path = os.path.join(_get_vault_path(container), 'blocks')
+    blocks_path = _get_vault_block_path(container)
     if not os.path.exists(blocks_path):
         raise ClientException('mocking')
 
