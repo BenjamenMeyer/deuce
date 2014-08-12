@@ -1,7 +1,7 @@
 from cafe.drivers.unittest import fixtures
-from tests.api.utils import config
-from tests.api.utils import client
-from tests.api.utils.schema import auth
+from utils import config
+from utils import client
+from utils.schema import auth
 
 from collections import namedtuple
 

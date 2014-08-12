@@ -1,4 +1,4 @@
-from tests.api.utils import base
+from tests.api import base
 
 import ddt
 import json
