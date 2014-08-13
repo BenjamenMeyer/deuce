@@ -28,7 +28,6 @@ class BlocksController(RestController):
     def get_all(self, vault_id):
 
         vault = Vault.get(
-            request_headers=request.storage_hdrs,
             vault_id=vault_id)
         response.headers["Transaction-ID"] = request.context.request_id
         if not vault:
@@ -71,7 +70,6 @@ class BlocksController(RestController):
         # Step 1: Is the block in our vault store?  If not, return 404
         # Step 2: Stream the block back to the user
         vault = Vault.get(
-            request_headers=request.storage_hdrs,
             vault_id=vault_id)
 
         # Existence of the vault should have been confirmed
@@ -97,7 +95,6 @@ class BlocksController(RestController):
 
         response.headers["Transaction-ID"] = request.context.request_id
         vault = Vault.get(
-            request_headers=request.storage_hdrs,
             vault_id=vault_id)
 
         try:

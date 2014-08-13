@@ -6,10 +6,8 @@ server = {
 
 
 def get_hooks():
-    from deuce.hooks import ProjectIDHook
-    from deuce.hooks import TransactionIDHook
-    from deuce.hooks import OpenstackHook
-    return [TransactionIDHook(), ProjectIDHook(), OpenstackHook()]
+    from deuce.hooks import DeuceHook
+    return [DeuceHook()]
 
 # Pecan Application Configurations
 app = {

@@ -1,6 +1,7 @@
 
 from pecan import conf
 
+import deuce
 from deuce.drivers.blockstoragedriver import BlockStorageDriver
 
 import os
@@ -22,31 +23,48 @@ class SwiftStorageDriver(BlockStorageDriver):
             conf.block_storage_driver.swift.swift_module)
         self.Conn = getattr(self.lib_pack, 'client')
 
+    # =========== Context ==============================
+    def update_context(self, request_headers, context):
+        """Updates the context with the requirements for the driver"""
+        class OpenStackSwiftContext(object):
+            pass
+
+        context.openstackswift = OpenStackSwiftContext()
+        try:
+            context.openstackswift.storage_url = request_headers['x-storage-url']
+        except KeyError:
+            return (401, 'Missing Header : X-Storage-URL')
+
+        try:
+            context.openstackswift.auth_token = request_headers['x-auth-token']
+        except KeyError:
+            return (401, 'Missing Header : X-Auth-Token')
+
     # =========== VAULTS ===============================
-    def create_vault(self, request_headers, vault_id):
+    def create_vault(self, vault_id):
         response = dict()
 
         try:
             self.Conn.put_container(
-                url=request_headers['x-storage-url'],
-                token=request_headers['x-auth-token'],
+                url=deuce.context.openstackswift.storage_url,
+                token=deuce.context.openstackswift.auth_token,
                 container=vault_id,
                 response_dict=response)
             return response['status'] == 201
         except (KeyError, ClientException) as e:
             return False
 
-    def vault_exists(self, request_headers, vault_id):
+    def vault_exists(self, vault_id):
         try:
             ret = self.Conn.head_container(
-                url=request_headers['x-storage-url'],
-                token=request_headers['x-auth-token'],
+                url=deuce.context.openstackswift.storage_url,
+                token=deuce.context.openstackswift.auth_token,
                 container=vault_id)
             return ret is not None
         except (KeyError, ClientException) as e:
             return False
 
-    def get_vault_statistics(self, request_headers, vault_id):
+    def get_vault_statistics(self, vault_id):
         """Return the statistics on the vault.
 
         "param vault_id: The ID of the vault to gather statistics for"""
@@ -59,8 +77,8 @@ class SwiftStorageDriver(BlockStorageDriver):
         try:
             # This will always return a dictionary
             container_metadata = self.Conn.head_container(
-                url=request_headers['x-storage-url'],
-                token=request_headers['x-auth-token'],
+                url=deuce.context.openstackswift.storage_url,
+                token=deuce.context.openstackswift.auth_token,
                 container=vault_id)
 
             mapper = {
@@ -90,12 +108,12 @@ class SwiftStorageDriver(BlockStorageDriver):
 
         return statistics
 
-    def delete_vault(self, request_headers, vault_id):
+    def delete_vault(self, vault_id):
         response = dict()
         try:
             self.Conn.delete_container(
-                url=request_headers['x-storage-url'],
-                token=request_headers['x-auth-token'],
+                url=deuce.context.openstackswift.storage_url,
+                token=deuce.context.openstackswift.auth_token,
                 container=vault_id,
                 response_dict=response)
 
@@ -116,15 +134,15 @@ class SwiftStorageDriver(BlockStorageDriver):
             return False
 
     # =========== BLOCKS ===============================
-    def store_block(self, request_headers, vault_id, block_id, block_data):
+    def store_block(self, vault_id, block_id, block_data):
         response = dict()
         try:
             mdhash = hashlib.md5()
             mdhash.update(block_data)
             mdetag = mdhash.hexdigest()
             ret_etag = self.Conn.put_object(
-                url=request_headers['x-storage-url'],
-                token=request_headers['x-auth-token'],
+                url=deuce.context.openstackswift.storage_url,
+                token=deuce.context.openstackswift.auth_token,
                 container=vault_id,
                 name='blocks/' + str(block_id),
                 contents=block_data,
@@ -135,23 +153,23 @@ class SwiftStorageDriver(BlockStorageDriver):
         except (KeyError, ClientException) as e:
             return False
 
-    def block_exists(self, request_headers, vault_id, block_id):
+    def block_exists(self, vault_id, block_id):
         try:
             ret = self.Conn.head_object(
-                url=request_headers['x-storage-url'],
-                token=request_headers['x-auth-token'],
+                url=deuce.context.openstackswift.storage_url,
+                token=deuce.context.openstackswift.auth_token,
                 container=vault_id,
                 name='blocks/' + str(block_id))
             return ret is not None
         except (KeyError, ClientException) as e:
             return False
 
-    def delete_block(self, request_headers, vault_id, block_id):
+    def delete_block(self, vault_id, block_id):
         response = dict()
         try:
             self.Conn.delete_object(
-                url=request_headers['x-storage-url'],
-                token=request_headers['x-auth-token'],
+                url=deuce.context.openstackswift.storage_url,
+                token=deuce.context.openstackswift.auth_token,
                 container=vault_id,
                 name='blocks/' + str(block_id),
                 response_dict=response)
@@ -159,14 +177,14 @@ class SwiftStorageDriver(BlockStorageDriver):
         except (KeyError, ClientException) as e:
             return False
 
-    def get_block_obj(self, request_headers, vault_id, block_id):
+    def get_block_obj(self, vault_id, block_id):
         response = dict()
         buff = BytesIO()
         try:
             ret_hdr, ret_obj_body = \
                 self.Conn.get_object(
-                    url=request_headers['x-storage-url'],
-                    token=request_headers['x-auth-token'],
+                    url=deuce.context.openstackswift.storage_url,
+                    token=deuce.context.openstackswift.auth_token,
                     container=vault_id,
                     name='blocks/' + str(block_id),
                     response_dict=response)
@@ -176,14 +194,14 @@ class SwiftStorageDriver(BlockStorageDriver):
         except (KeyError, ClientException) as e:
             return None
 
-    def get_block_object_length(self, request_headers, vault_id, block_id):
+    def get_block_object_length(self, vault_id, block_id):
         """Returns the length of an object"""
         response = dict()
         try:
             ret_hdr, ret_obj_body = \
                 self.Conn.get_object(
-                    url=request_headers['x-storage-url'],
-                    token=request_headers['x-auth-token'],
+                    url=deuce.context.openstackswift.storage_url,
+                    token=deuce.context.openstackswift.auth_token,
                     container=vault_id,
                     name='blocks/' + str(block_id),
                     response_dict=response)
@@ -191,9 +209,9 @@ class SwiftStorageDriver(BlockStorageDriver):
         except ClientException as e:
             return 0
 
-    def create_blocks_generator(self, request_headers, vault_id, block_gen):
+    def create_blocks_generator(self, vault_id, block_gen):
         """Returns a generator of file-like objects that are
         ready to read. These objects will get closed
         individually."""
-        return (self.get_block_obj(request_headers, vault_id, block_id)
+        return (self.get_block_obj(vault_id, block_id)
             for block_id in block_gen)

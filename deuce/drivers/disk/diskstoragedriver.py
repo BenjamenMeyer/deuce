@@ -1,5 +1,6 @@
 from pecan import conf
 from deuce.drivers.blockstoragedriver import BlockStorageDriver
+import deuce
 
 import os
 import os.path
@@ -28,17 +29,17 @@ class DiskStorageDriver(BlockStorageDriver):
         vault_path = self._get_vault_path(project_id, vault_id)
         return os.path.join(vault_path, str(block_id))
 
-    def create_vault(self, request_headers, vault_id):
-        path = self._get_vault_path(request_headers['x-project-id'], vault_id)
+    def create_vault(self, vault_id):
+        path = self._get_vault_path(deuce.context.project_id, vault_id)
 
         if not os.path.exists(path):
             shutil.os.makedirs(path)
 
-    def vault_exists(self, request_headers, vault_id):
-        path = self._get_vault_path(request_headers['x-project-id'], vault_id)
+    def vault_exists(self, vault_id):
+        path = self._get_vault_path(deuce.context.project_id, vault_id)
         return os.path.exists(path)
 
-    def get_vault_statistics(self, request_headers, vault_id):
+    def get_vault_statistics(self, vault_id):
         """Return the statistics on the vault.
 
         "param vault_id: The ID of the vault to gather statistics for"""
@@ -48,7 +49,7 @@ class DiskStorageDriver(BlockStorageDriver):
         statistics['total-size'] = 0
         statistics['block-count'] = 0
 
-        path = self._get_vault_path(request_headers['x-project-id'], vault_id)
+        path = self._get_vault_path(deuce.context.project_id, vault_id)
 
         total_size = 0
         object_count = 0
@@ -63,16 +64,16 @@ class DiskStorageDriver(BlockStorageDriver):
 
         return statistics
 
-    def delete_vault(self, request_headers, vault_id):
-        path = self._get_vault_path(request_headers['x-project-id'], vault_id)
+    def delete_vault(self, vault_id):
+        path = self._get_vault_path(deuce.context.project_id, vault_id)
         try:
             os.rmdir(path)
             return True
         except:
             return False
 
-    def store_block(self, request_headers, vault_id, block_id, block_data):
-        path = self._get_block_path(request_headers['x-project-id'],
+    def store_block(self, vault_id, block_id, block_data):
+        path = self._get_block_path(deuce.context.project_id,
             vault_id, block_id)
 
         with open(path, 'wb') as outfile:
@@ -80,24 +81,24 @@ class DiskStorageDriver(BlockStorageDriver):
 
         return True
 
-    def block_exists(self, request_headers, vault_id, block_id):
-        path = self._get_block_path(request_headers['x-project-id'],
+    def block_exists(self, vault_id, block_id):
+        path = self._get_block_path(deuce.context.project_id,
             vault_id, block_id)
         return os.path.exists(path)
 
-    def delete_block(self, request_headers, vault_id, block_id):
-        path = self._get_block_path(request_headers['x-project-id'],
+    def delete_block(self, vault_id, block_id):
+        path = self._get_block_path(deuce.context.project_id,
             vault_id, block_id)
 
         if os.path.exists(path):
             os.remove(path)
 
-    def get_block_obj(self, request_headers, vault_id, block_id):
+    def get_block_obj(self, vault_id, block_id):
         """Returns a file-like object capable or streaming the
         block data. If the object cannot be retrieved, the list
         of objects should be returned
         """
-        path = self._get_block_path(request_headers['x-project-id'],
+        path = self._get_block_path(deuce.context.project_id,
             vault_id, block_id)
 
         if not os.path.exists(path):
@@ -105,9 +106,9 @@ class DiskStorageDriver(BlockStorageDriver):
 
         return open(path, 'rb')
 
-    def get_block_object_length(self, request_headers, vault_id, block_id):
+    def get_block_object_length(self, vault_id, block_id):
         """Returns the length of an object"""
-        path = self._get_block_path(request_headers['x-project-id'],
+        path = self._get_block_path(deuce.context.project_id,
             vault_id, block_id)
 
         if not os.path.exists(path):

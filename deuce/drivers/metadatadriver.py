@@ -64,6 +64,11 @@ class MetadataStorageDriver(object):
     defines all functions necessary for a Deuce metadata
     driver.
     """
+
+    def update_context(self, request_headers, context):
+        """Updates the context with the requirements for the driver"""
+        pass
+
     @abstractmethod
     def get_vault_statistics(self, project_id, vault_id):
         """Return the statistics on the vault.

@@ -12,28 +12,23 @@ import hashlib
 class Vault(object):
 
     @staticmethod
-    def get(request_headers, vault_id):
+    def get(vault_id):
         if deuce.storage_driver.vault_exists(
-                request_headers=request_headers,
                 vault_id=vault_id):
             return Vault(
-                request_headers=request_headers,
                 vault_id=vault_id)
         return None
 
     @staticmethod
-    def create(request_headers, vault_id):
+    def create(vault_id):
         """Creates the vault with the specified vault_id"""
         deuce.storage_driver.create_vault(
-            request_headers=request_headers,
             vault_id=vault_id)
         return Vault(
-            request_headers=request_headers,
             vault_id=vault_id)
 
-    def __init__(self, request_headers, vault_id):
-        self.request_headers = request_headers
-        self.project_id = request_headers['x-project-id']
+    def __init__(self, vault_id):
+        self.project_id = deuce.context.project_id
         self.vault_id = vault_id
 
     def get_vault_statistics(self):
@@ -51,7 +46,6 @@ class Vault(object):
         vault_stats['metadata'] = metadata_info.get_vault_statistics(
             self.project_id, self.vault_id)
         vault_stats['storage'] = storage_info.get_vault_statistics(
-            request_headers=self.request_headers,
             vault_id=self.vault_id)
 
         return vault_stats
@@ -63,7 +57,6 @@ class Vault(object):
             raise ValueError('Invalid Hash Value in the block ID')
 
         retval = deuce.storage_driver.store_block(
-            request_headers=self.request_headers,
             vault_id=self.vault_id,
             block_id=block_id,
             block_data=blockdata)
@@ -82,7 +75,6 @@ class Vault(object):
 
     def get_block(self, block_id):
         obj = deuce.storage_driver.get_block_obj(
-            request_headers=self.request_headers,
             vault_id=self.vault_id,
             block_id=block_id)
 
@@ -91,13 +83,11 @@ class Vault(object):
 
     def get_block_length(self, block_id):
         return deuce.storage_driver.get_block_object_length(
-            request_headers=self.request_headers,
             vault_id=self.vault_id,
             block_id=block_id)
 
     def get_blocks_generator(self, block_ids):
         return deuce.storage_driver.create_blocks_generator(
-            request_headers=self.request_headers,
             vault_id=self.vault_id,
             block_gen=block_ids)
 
@@ -134,7 +124,6 @@ class Vault(object):
 
     def delete(self):
         return deuce.storage_driver.delete_vault(
-            request_headers=self.request_headers,
             vault_id=self.vault_id)
 
     def delete_file(self, file_id):
