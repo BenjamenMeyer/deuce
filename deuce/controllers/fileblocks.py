@@ -46,7 +46,7 @@ class FileBlocksController(RestController):
         # for the purpose of determining if the
         # list was truncated
         retblks = deuce.metadata_driver.create_file_block_generator(
-            request.project_id, vault_id, file_id, inmarker, limit + 1)
+            deuce.context.project_id, vault_id, file_id, inmarker, limit + 1)
 
         resp = list(retblks)
 

@@ -15,6 +15,7 @@ import sys
 import os
 import json
 
+import deuce
 
 # TODO: Make this test generic -- it should not konw
 # which particular driver it is testing.
@@ -79,33 +80,27 @@ class SwiftStorageDriverTest(DiskStorageDriverTest):
         failed_hdrs = hdrs.copy()
         failed_hdrs['x-auth-token'] = failed_hdrs['x-auth-token'] + '1'
         driver = SwiftStorageDriver()
+        driver.update_context(failed_hdrs, deuce.context)
         projectid = self.create_project_id()
         vaultid = self.create_vault_id()
         blockid = self.create_block_id()
         driver.create_vault(
-            request_headers=failed_hdrs,
             vault_id=vaultid)
         driver.vault_exists(
-            request_headers=failed_hdrs,
             vault_id=vaultid)
         driver.delete_vault(
-            request_headers=failed_hdrs,
             vault_id=vaultid)
         driver.store_block(
-            request_headers=failed_hdrs,
             vault_id=vaultid,
             block_id=blockid,
             block_data=str('').encode('utf-8'))
         driver.block_exists(
-            request_headers=failed_hdrs,
             vault_id=vaultid,
             block_id=blockid)
         driver.delete_block(
-            request_headers=failed_hdrs,
             vault_id=vaultid,
             block_id=blockid)
         driver.get_block_obj(
-            request_headers=failed_hdrs,
             vault_id=vaultid,
             block_id=blockid)
 
@@ -124,6 +119,7 @@ class SwiftStorageDriverTest(DiskStorageDriverTest):
 
             hdrs = self.get_mock_hdrs()
             driver = self.create_driver()
+            driver.update_context(hdrs, deuce.context)
             vault_id = self.create_vault_id()
             block_id = self.create_block_id()
 
@@ -134,42 +130,34 @@ class SwiftStorageDriverTest(DiskStorageDriverTest):
             driver.Conn.mock_drop_connections(True)
 
             self.assertFalse(driver.create_vault(
-                request_headers=hdrs,
                 vault_id=vault_id))
 
             self.assertFalse(driver.vault_exists(
-                request_headers=hdrs,
                 vault_id=vault_id))
 
             self.assertFalse(driver.delete_vault(
-                request_headers=hdrs,
                 vault_id=vault_id))
 
             self.assertFalse(driver.store_block(
-                request_headers=hdrs,
                 vault_id=vault_id,
                 block_id=block_id,
                 block_data=str('').encode('utf-8')))
 
             self.assertFalse(driver.block_exists(
-                request_headers=hdrs,
                 vault_id=vault_id,
                 block_id=block_id))
 
             self.assertFalse(driver.delete_block(
-                request_headers=hdrs,
                 vault_id=vault_id,
                 block_id=block_id))
 
             self.assertIsNone(driver.get_block_obj(
-                request_headers=hdrs,
                 vault_id=vault_id,
                 block_id=block_id))
 
             # Stats should come back as zero even though the connection
             # "dropped"
             bad_vault_stats = driver.get_vault_statistics(
-                request_headers=hdrs,
                 vault_id=vault_id)
 
             main_keys = ('total-size', 'block-count')

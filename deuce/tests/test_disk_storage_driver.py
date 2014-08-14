@@ -3,6 +3,7 @@ from deuce.tests import FunctionalTest
 from deuce.drivers.blockstoragedriver import BlockStorageDriver
 from deuce.drivers.disk import DiskStorageDriver
 from deuce.tests.util import MockFile
+import deuce
 
 from hashlib import md5
 
@@ -30,81 +31,66 @@ class DiskStorageDriverTest(FunctionalTest):
     def test_vault_crud(self):
         hdrs = self.get_mock_hdrs()
         driver = self.create_driver()
+        driver.update_context(hdrs, deuce.context)
 
         vault_id = self.create_vault_id()
 
         driver.delete_vault(
-            request_headers=hdrs,
             vault_id=vault_id)
         assert not driver.vault_exists(
-            request_headers=hdrs,
             vault_id=vault_id)
 
         # delete a non-empty vault.
         driver.create_vault(
-            request_headers=hdrs,
             vault_id=vault_id)
         block_id = self.create_block_id()
         driver.store_block(
-            request_headers=hdrs,
             vault_id=vault_id,
             block_id=block_id,
             block_data=b' ')
         assert driver.block_exists(
-            request_headers=hdrs,
             vault_id=vault_id,
             block_id=block_id)
         assert not driver.delete_vault(
-            request_headers=hdrs,
             vault_id=vault_id)
         assert driver.vault_exists(
-            request_headers=hdrs,
             vault_id=vault_id)
         # Cleanup and delete again.
         driver.delete_block(
-            request_headers=hdrs,
             vault_id=vault_id,
             block_id=block_id)
         assert driver.delete_vault(
-            request_headers=hdrs,
             vault_id=vault_id)
         assert not driver.vault_exists(
-            request_headers=hdrs,
             vault_id=vault_id)
 
         # To create an existed vault.
         driver.create_vault(
-            request_headers=hdrs,
             vault_id=vault_id)
         driver.create_vault(
-            request_headers=hdrs,
             vault_id=vault_id)
 
         assert driver.vault_exists(
-            request_headers=hdrs,
             vault_id=vault_id)
 
         driver.delete_vault(
-            request_headers=hdrs,
             vault_id=vault_id)
 
         assert not driver.vault_exists(
-            request_headers=hdrs,
             vault_id=vault_id)
 
     def test_vault_statistics(self):
         hdrs = self.get_mock_hdrs()
         driver = self.create_driver()
+        driver.update_context(hdrs, deuce.context)
 
         vault_id = self.create_vault_id()
 
         # empty vault stats
         driver.create_vault(
-            request_headers=hdrs,
             vault_id=vault_id)
 
         statistics = driver.get_vault_statistics(
-            request_headers=hdrs,
             vault_id=vault_id)
 
         main_keys = ('total-size', 'block-count')
@@ -121,7 +107,6 @@ class DiskStorageDriverTest(FunctionalTest):
         vault_id = self.create_vault_id()
 
         driver.create_vault(
-            request_headers=hdrs,
             vault_id=vault_id)
 
         # Create a file-like object
@@ -130,45 +115,38 @@ class DiskStorageDriverTest(FunctionalTest):
         # Test Invalid block_id, ie, wrong sha1 hash.
         try:
             driver.store_block(
-                request_headers=hdrs,
                 vault_id=vault_id,
                 block_id="test_disk_trouble_file",
                 block_data=os.urandom(10))
         except:
             assert True
         driver.delete_block(
-            request_headers=hdrs,
             vault_id=vault_id,
             block_id="test_disk_trouble_file")
 
         assert (driver.get_block_object_length(
-            request_headers=hdrs,
             vault_id=vault_id,
             block_id="test_invalid_block_for_length") == 0)
 
         # Test delete invalid block
         driver.delete_block(
-            request_headers=hdrs,
             vault_id=vault_id,
             block_id="test_invalid_block_deletion")
 
         # Test valid block_id.
         block_id = block_data.sha1()
         driver.store_block(
-            request_headers=hdrs,
             vault_id=vault_id,
             block_id=block_id,
             block_data=block_data.read())
         block_data.seek(0)
 
         assert driver.block_exists(
-            request_headers=hdrs,
             vault_id=vault_id,
             block_id=block_id)
 
         # Read back the block data and compare
         file_obj = driver.get_block_obj(
-            request_headers=hdrs,
             vault_id=vault_id,
             block_id=block_id)
 
@@ -179,27 +157,22 @@ class DiskStorageDriverTest(FunctionalTest):
         assert len(returned_data) == block_size
         assert returned_data == block_data._content
         assert (driver.get_block_object_length(
-            request_headers=hdrs,
             vault_id=vault_id,
             block_id=block_id) == block_size)
 
         driver.delete_block(
-            request_headers=hdrs,
             vault_id=vault_id,
             block_id=block_id)
 
         assert not driver.block_exists(
-            request_headers=hdrs,
             vault_id=vault_id,
             block_id=block_id)
 
         assert None == driver.get_block_obj(
-            request_headers=hdrs,
             vault_id=vault_id,
             block_id='invalid_block_id')
 
         assert driver.delete_vault(
-            request_headers=hdrs,
             vault_id=vault_id)
 
     def test_block_generator(self):
@@ -210,12 +183,10 @@ class DiskStorageDriverTest(FunctionalTest):
         vault_id = self.create_vault_id()
 
         driver.create_vault(
-            request_headers=hdrs,
             vault_id=vault_id)
 
         # Test re-entrance
         driver.create_vault(
-            request_headers=hdrs,
             vault_id=vault_id)
 
         blocks = [MockFile(block_size) for x in range(0, 10)]
@@ -232,7 +203,6 @@ class DiskStorageDriverTest(FunctionalTest):
             block_id = block_data.sha1()
             block_ids.append(block_id)
             driver.store_block(
-                request_headers=hdrs,
                 vault_id=vault_id,
                 block_id=block_id,
                 block_data=block_data.read())
@@ -243,7 +213,6 @@ class DiskStorageDriverTest(FunctionalTest):
         blockid_gen = block_ids[:]
 
         gen = driver.create_blocks_generator(
-            request_headers=hdrs,
             vault_id=vault_id,
             block_gen=blockid_gen)
 
@@ -258,9 +227,7 @@ class DiskStorageDriverTest(FunctionalTest):
         # Clenaup.
         for block_id in block_ids[:]:
             driver.delete_block(
-                request_headers=hdrs,
                 vault_id=vault_id,
                 block_id=block_id)
         assert driver.delete_vault(
-            request_headers=hdrs,
             vault_id=vault_id)

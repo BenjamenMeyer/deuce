@@ -6,6 +6,7 @@ from deuce.tests import FunctionalTest
 
 from deuce.model import Vault, Block, File
 
+from deuce.hooks.deucehook import setup_deuce_context
 
 class TestModel(FunctionalTest):
 
@@ -15,10 +16,10 @@ class TestModel(FunctionalTest):
         self.storage_url = 'test_storage_url'
         self.project_id = self.create_project_id()
         self.hdrs = {'x-project-id': self.project_id}
+        setup_deuce_context(self.hdrs)
 
     def test_get_nonexistent_block(self):
         v = Vault.get(
-            request_headers=self.hdrs,
             vault_id='should_not_exist')
         assert v is None
 
@@ -26,18 +27,15 @@ class TestModel(FunctionalTest):
         vault_id = self.create_vault_id()
 
         v = Vault.get(
-            request_headers=self.hdrs,
             vault_id=vault_id)
         assert v is None
 
         v = Vault.create(
-            request_headers=self.hdrs,
             vault_id=vault_id)
         assert v is not None
         v.delete()
 
         v = Vault.get(
-            request_headers=self.hdrs,
             vault_id=vault_id)
         assert v is None
 
@@ -46,7 +44,6 @@ class TestModel(FunctionalTest):
         storage_url = ''
 
         v = Vault.create(
-            request_headers=self.hdrs,
             vault_id=vault_id)
 
         f = v.create_file()
@@ -70,7 +67,6 @@ class TestModel(FunctionalTest):
         vault_id = self.create_vault_id()
 
         v = Vault.create(
-            request_headers=self.hdrs,
             vault_id=vault_id)
 
         # Check for blocks, should be none
