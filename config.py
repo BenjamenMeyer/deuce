@@ -6,9 +6,12 @@ server = {
 
 
 def get_hooks():
+    from deuce.hooks import DeuceContextHook
     from deuce.hooks import ProjectIDHook
     from deuce.hooks import TransactionIDHook
-    return [TransactionIDHook(), ProjectIDHook()]
+    from deuce.hooks import AuthTokenHook
+    return [DeuceContextHook(), TransactionIDHook(), ProjectIDHook(),
+        AuthTokenHook()]
 
 # Pecan Application Configurations
 app = {
@@ -107,7 +110,7 @@ metadata_driver = {
     },
 
     'sqlite': {
-        'path': '/tmp/deuce_sqlite_unittest_vaultmeta.db',
+        'path': ':memory:',
         'db_module': 'sqlite3'
     },
 

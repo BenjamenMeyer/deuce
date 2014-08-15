@@ -111,7 +111,7 @@ class BaseDeuceClient(client.AutoMarshallingHTTPClient):
         Upload a block
         """
 
-        new_header = {'Content-Type': 'application/binary',
+        new_header = {'Content-Type': 'application/octet-stream',
                       'content-length': len(block_data)}
         resp = self.request('PUT', '{0}/{1}/{2}/blocks/{3}'.format(
             self.url, self.version, vaultname, blockid),

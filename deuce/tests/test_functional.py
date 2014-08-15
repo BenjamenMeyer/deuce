@@ -7,8 +7,14 @@ class TestRootController(FunctionalTest):
 
     def test_get(self):
         # Require project ID for root as well
-        response = self.app.get('/', expect_errors=True)
+        response = self.app.get('/', headers={'x-auth-token': 'good'},
+            expect_errors=True)
         assert response.status_int == 400
+
+        # Require auth token for root as well
+        response = self.app.get('/', headers={'x-project-id': 'blah'},
+            expect_errors=True)
+        assert response.status_int == 401
 
         response = self.app.get('/', headers={'x-project-id': 'blah',
             'x-auth-token': 'good'})

@@ -1,3 +1,15 @@
+# operational directories
+deuce/cover
+deuce/log
+
+# virtualenv
+env
+.env
+
+doc/
+log/
+
+# Python code
 *.py[cod]
 
 # C extensions

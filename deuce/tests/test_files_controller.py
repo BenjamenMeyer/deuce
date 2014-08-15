@@ -24,11 +24,11 @@ class TestFilesController(FunctionalTest):
         self.max_ret_num = conf.api_configuration.max_returned_num
         self.total_file_num = 0
 
-        self._hdrs = {"x-project-id": 'testfilectrl',
+        self._hdrs = {"x-project-id": self.create_project_id(),
             "x-auth-token": ''}
+        self.init_context(self._hdrs)
 
         # Create a vault and a file for us to work with
-        self.project_id = self.create_project_id()
         self.vault_id = self.create_vault_id()
         self._vault_path = '/v1.0/' + self.vault_id
         self._files_path = self._vault_path + '/files'
@@ -438,7 +438,7 @@ class TestFilesController(FunctionalTest):
             # NOTE: Very important to set the content-type
             # header. Otherwise pecan tries to do a UTF-8 test.
             headers = {
-                "Content-Type": "application/binary",
+                "Content-Type": "application/octet-stream",
                 "Content-Length": str(size),
             }
 
