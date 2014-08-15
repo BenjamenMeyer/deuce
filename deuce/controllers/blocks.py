@@ -63,8 +63,8 @@ class BlocksController(RestController):
 
         return resp
 
-    @expose(content_type='application/octet-stream;')
     @validate(vault_id=VaultGetRule, block_id=BlockGetRule)
+    @expose(content_type='application/octet-stream;')
     def get_one(self, vault_id, block_id):
         """Returns a specific block"""
 
@@ -88,8 +88,8 @@ class BlocksController(RestController):
             request.auth_token)
         response.status_code = 200
 
-    @expose()
     @validate(vault_id=VaultPutRule, block_id=BlockPutRuleNoneOk)
+    @expose()
     def put(self, vault_id, block_id=None):
         """Uploads a block into Deuce. The URL of the block
         is returned in the Location header

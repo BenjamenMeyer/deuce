@@ -72,13 +72,15 @@ class VaultController(RestController):
         vault = Vault.get(vault_id, request.auth_token)
 
         if vault:
-            vault.delete(
-                request.auth_token)
-            logger.info('Vault [{0}] deleted'.format(vault_id))
-            # weblint complains about the content-type header being present
-            # as pecan doesn't intelligently add it or remove it.
-            del response.headers["Content-Type"]
-            response.status_code = 204
+            if vault.delete(request.auth_token):
+                logger.info('Vault [{0}] deleted'.format(vault_id))
+                del response.headers["Content-Type"]
+                response.status_code = 204
+
+            else:
+                logger.info('Vault [{0}] cannot be deleted'.format(vault_id))
+                response.status_code = 412
+
         else:
             logger.error('Vault [{0}] deletion failed; '
                 'Vault does not exist'.format(vault_id))

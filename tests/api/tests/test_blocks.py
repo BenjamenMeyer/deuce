@@ -23,6 +23,14 @@ class TestNoBlocksUploaded(base.TestBase):
                              'Response to List Blocks for an empty vault '
                              'should be an empty list []')
 
+    def test_get_missing_block(self):
+        """Get a block that has not been uploaded"""
+
+        resp = self.client.get_block(self.vaultname, self.id_generator(50))
+        self.assertEqual(resp.status_code, 404,
+                         'Status code returned: {0} . '
+                         'Expected 404'.format(resp.status_code))
+
     def tearDown(self):
         super(TestNoBlocksUploaded, self).tearDown()
         self.client.delete_vault(self.vaultname)

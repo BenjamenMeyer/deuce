@@ -6,6 +6,25 @@ import os
 import sha
 
 
+class TestNoFilesCreated(base.TestBase):
+
+    def setUp(self):
+        super(TestNoFilesCreated, self).setUp()
+        self.create_empty_vault()
+
+    def test_get_missing_file(self):
+        """Get a file that has not been created"""
+
+        resp = self.client.get_file(self.vaultname, self.id_generator(50))
+        self.assertEqual(resp.status_code, 404,
+                         'Status code returned: {0} . '
+                         'Expected 404'.format(resp.status_code))
+
+    def tearDown(self):
+        super(TestNoFilesCreated, self).tearDown()
+        self.client.delete_vault(self.vaultname)
+
+
 class TestCreateFile(base.TestBase):
 
     def setUp(self):

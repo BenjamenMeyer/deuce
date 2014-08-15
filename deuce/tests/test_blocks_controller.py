@@ -73,7 +73,7 @@ class TestBlocksController(FunctionalTest):
         self.assertEqual(response.status_int, 404)
 
     def test_invalid_block_id(self):
-        path = self._get_block_path('/invalid_block_id')
+        path = self._get_block_path('invalid_block_id')
 
         response = self.app.put(path, headers=self._hdrs,
                                 expect_errors=True)

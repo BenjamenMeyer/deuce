@@ -2,6 +2,34 @@ from tests.api import base
 import ddt
 
 
+class TestNoVaultsCreated(base.TestBase):
+
+    def setUp(self):
+        super(TestNoVaultsCreated, self).setUp()
+
+    def test_head_missing_vault(self):
+        """Head of a vault that has not been created"""
+
+        resp = self.client.vault_head(self.id_generator(50))
+        self.assertEqual(resp.status_code, 404,
+                         'Status code returned: {0} . '
+                         'Expected 404'.format(resp.status_code))
+        self.assertEqual(len(resp.content), 0,
+                         'Response Content was not empty. Content: '
+                         '{0}'.format(resp.content))
+
+    def test_get_missing_vault(self):
+        """Get a vault that has not been created"""
+
+        resp = self.client.get_vault(self.id_generator(50))
+        self.assertEqual(resp.status_code, 404,
+                         'Status code returned: {0} . '
+                         'Expected 404'.format(resp.status_code))
+
+    def tearDown(self):
+        super(TestNoVaultsCreated, self).tearDown()
+
+
 @ddt.ddt
 class TestCreateVaults(base.TestBase):
 
@@ -93,4 +121,30 @@ class TestEmptyVault(base.TestBase):
 
     def tearDown(self):
         super(TestEmptyVault, self).tearDown()
+        self.client.delete_vault(self.vaultname)
+
+
+class TestPopulatedVault(base.TestBase):
+
+    def setUp(self):
+        super(TestPopulatedVault, self).setUp()
+        self.create_empty_vault()
+        self.upload_block()
+
+    def test_delete_populated_vault(self):
+        """Delete a Vault that has some data. 1 block"""
+
+        resp = self.client.delete_vault(self.vaultname)
+        self.assertEqual(resp.status_code, 412,
+                         'Status code returned for Delete Vault: {0} . '
+                         'Expected 412'.format(resp.status_code))
+        self.assertHeaders(resp.headers)
+        self.assertEqual(len(resp.content), 0,
+                         'Response Content was not empty. Content: '
+                         '{0}'.format(resp.content))
+
+    def tearDown(self):
+        super(TestPopulatedVault, self).tearDown()
+        [self.client.delete_block(self.vaultname, block.Id) for block in
+            self.blocks]
         self.client.delete_vault(self.vaultname)
