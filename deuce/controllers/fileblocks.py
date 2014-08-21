@@ -7,6 +7,7 @@ from pecan.core import abort
 import deuce
 from deuce.util import set_qs
 from deuce.model import Vault, File, Block
+from deuce.common.rbac import rbac_require, RBAC_OBSERVER, RBAC_CREATOR, RBAC_ADMIN
 
 from deuce.controllers.validation import *
 
@@ -22,6 +23,7 @@ class FileBlocksController(RestController):
     """
     @validate(vault_id=VaultGetRule, file_id=FileGetRule,
         marker=OffsetMarkerRule, limit=LimitRule)
+    @rbac_require(permission_level=RBAC_OBSERVER)
     @expose('json')
     def get_all(self, vault_id, file_id):
 

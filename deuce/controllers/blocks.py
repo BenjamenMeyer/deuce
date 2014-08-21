@@ -4,6 +4,7 @@ from pecan import conf, expose, request, response, abort
 from pecan.rest import RestController
 from deuce.model import Vault, Block
 from deuce.util import set_qs
+from deuce.common.rbac import rbac_require, RBAC_OBSERVER, RBAC_CREATOR, RBAC_ADMIN
 from six.moves.urllib.parse import urlparse
 from deuce.controllers.validation import *
 
@@ -26,6 +27,7 @@ class BlocksController(RestController):
     """
     @validate(vault_id=VaultGetRule, marker=BlockMarkerRule,
               limit=LimitRule)
+    @rbac_require(permission_level=RBAC_OBSERVER)
     @expose('json')
     def get_all(self, vault_id):
 
@@ -63,6 +65,7 @@ class BlocksController(RestController):
         return resp
 
     @validate(vault_id=VaultGetRule, block_id=BlockGetRule)
+    @rbac_require(permission_level=RBAC_OBSERVER)
     @expose(content_type='application/octet-stream;')
     def get_one(self, vault_id, block_id):
         """Returns a specific block"""
@@ -88,6 +91,7 @@ class BlocksController(RestController):
         response.status_code = 200
 
     @validate(vault_id=VaultPutRule, block_id=BlockPutRuleNoneOk)
+    @rbac_require(permission_level=RBAC_CREATOR)
     @expose()
     def put(self, vault_id, block_id=None):
         """Uploads a block into Deuce. The URL of the block

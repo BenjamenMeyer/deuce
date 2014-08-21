@@ -7,6 +7,7 @@ from pecan.rest import RestController
 import deuce
 from deuce.controllers.fileblocks import FileBlocksController
 from deuce.controllers.validation import *
+from deuce.common.rbac import rbac_require, RBAC_OBSERVER, RBAC_CREATOR, RBAC_ADMIN
 
 from deuce.model import Vault, Block, File
 from deuce.util import FileCat
@@ -24,6 +25,7 @@ class FilesController(RestController):
     blocks = FileBlocksController()
 
     @validate(vault_id=VaultGetRule, file_id=FileGetRule)
+    @rbac_require(permission_level=RBAC_ADMIN)
     @expose('json')
     def delete(self, vault_id, file_id):
 
@@ -38,6 +40,7 @@ class FilesController(RestController):
         vault.delete_file(file_id)
 
     @validate(vault_id=VaultGetRule, marker=FileMarkerRule, limit=LimitRule)
+    @rbac_require(permission_level=RBAC_OBSERVER)
     @expose('json')
     def get_all(self, vault_id):
         vault = Vault.get(vault_id, deuce.context.openstack.auth_token)
@@ -74,6 +77,7 @@ class FilesController(RestController):
         return resp
 
     @validate(vault_id=VaultGetRule, file_id=FileGetRule)
+    @rbac_require(permission_level=RBAC_OBSERVER)
     @expose(content_type='application/octet-stream;')
     def get_one(self, vault_id, file_id):
         """Fetches, re-assembles and streams a single
@@ -110,6 +114,7 @@ class FilesController(RestController):
         response.status_code = 200
 
     @validate(vault_id=VaultPutRule, file_id=FilePostRuleNoneOk)
+    @rbac_require(permission_level=RBAC_CREATOR)
     @expose('json')
     def post(self, vault_id, file_id=None):
         """Initializes a new file. The location of
