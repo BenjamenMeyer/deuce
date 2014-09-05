@@ -16,20 +16,15 @@ from deuce.util import set_qs
 logger = logging.getLogger(__name__)
 
 
-# Standard rule for marker-limit semantics
-# for the listing files
-
-
 class FilesController(RestController):
 
     blocks = FileBlocksController()
 
     @validate(vault_id=VaultGetRule, file_id=FileGetRule)
     @rbac_require(permission_level=RBAC_ADMIN)
-    @expose('json')
     def delete(self, vault_id, file_id):
 
-        vault = Vault.get(vault_id, deuce.context.openstack.auth_token)
+        vault = Vault.get(vault_id)
         if not vault:
             abort(404)
 
@@ -43,7 +38,7 @@ class FilesController(RestController):
     @rbac_require(permission_level=RBAC_OBSERVER)
     @expose('json')
     def get_all(self, vault_id):
-        vault = Vault.get(vault_id, deuce.context.openstack.auth_token)
+        vault = Vault.get(vault_id)
 
         if not vault:
             logger.error('Vault [{0}] does not exist'.format(vault_id))
@@ -82,7 +77,7 @@ class FilesController(RestController):
     def get_one(self, vault_id, file_id):
         """Fetches, re-assembles and streams a single
         file out of Deuce"""
-        vault = Vault.get(vault_id, deuce.context.openstack.auth_token)
+        vault = Vault.get(vault_id)
 
         if not vault:
             logger.error('Vault [{0}] does not exist'.format(vault_id))
@@ -106,8 +101,7 @@ class FilesController(RestController):
         block_ids = [block[0] for block in sorted(block_gen,
             key=lambda block: block[1])]
 
-        objs = vault.get_blocks_generator(block_ids,
-            auth_token=deuce.context.openstack.auth_token)
+        objs = vault.get_blocks_generator(block_ids)
 
         response.content_length = vault.get_file_length(file_id)
         response.body_file = FileCat(objs)
@@ -121,7 +115,7 @@ class FilesController(RestController):
         the new file is returned in the Location
         header
         """
-        vault = Vault.get(vault_id, deuce.context.openstack.auth_token)
+        vault = Vault.get(vault_id)
 
         # caller tried to post to a vault that
         # does not exist
@@ -153,8 +147,7 @@ class FilesController(RestController):
         if not request.body:
             try:
                 # Fileid with an empty body will finalize the file.
-                filesize = request.headers['Filesize'] if 'Filesize' \
-                    in request.headers.keys() else 0
+                filesize = int(request.headers['x-file-length'])
                 res = deuce.metadata_driver.finalize_file(vault_id, file_id,
                     filesize)
                 return res

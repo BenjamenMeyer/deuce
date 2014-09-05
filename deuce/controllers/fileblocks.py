@@ -17,7 +17,6 @@ logger = logging.getLogger(__name__)
 
 
 class FileBlocksController(RestController):
-
     """The FileBlocksController is responsible for:
     Listing blocks belong to a particular file
     """
@@ -27,7 +26,7 @@ class FileBlocksController(RestController):
     @expose('json')
     def get_all(self, vault_id, file_id):
 
-        vault = Vault.get(vault_id, deuce.context.openstack.auth_token)
+        vault = Vault.get(vault_id)
 
         assert vault is not None
 

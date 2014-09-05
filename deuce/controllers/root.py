@@ -1,8 +1,8 @@
 from pecan import expose, redirect, response
 from webob.exc import status_map
 
-from deuce.controllers.vault import VaultController
 from deuce.common.rbac import rbac_require, RBAC_OBSERVER, RBAC_CREATOR, RBAC_ADMIN
+from deuce.controllers.home import HomeController
 
 
 class RootController(object):
@@ -10,12 +10,12 @@ class RootController(object):
     def __init__(self):
         # Support multiple API versions from the beginning. This
         # should most likely get moved into config
-        self.versions = {"v1.0": VaultController()}
+        self.versions = {"v1.0": HomeController()}
 
-    @rbac_require(permission_level=RBAC_OBSERVER)
-    @expose(generic=True, template='index.html')
-    def index(self):
-        return dict()
+    # DISABLE INDEX PAGE!
+    # @rbac_require(permission_level=RBAC_OBSERVER)
+    # @expose(generic=True, template='index.html')
+    # def index(self):
 
     @rbac_require(permission_level=RBAC_OBSERVER)
     @expose()
@@ -25,10 +25,8 @@ class RootController(object):
         except KeyError:
             response.status_code = 404
 
-    # TODO: Eliminate this error handling template or have
-    # it return a well-formed error in a JSON body
     @rbac_require(permission_level=RBAC_OBSERVER)
-    @expose('error.html')
+    @expose('json')
     def error(self, status):
         try:
             status = int(status)
