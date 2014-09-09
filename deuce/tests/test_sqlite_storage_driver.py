@@ -1,18 +1,23 @@
+from abc import ABCMeta, abstractmethod
+from mock import MagicMock
 import os
-from deuce.tests import DriverTest
+import random
+
+import six
+
+import deuce
 from deuce.drivers.metadatadriver import MetadataStorageDriver, GapError,\
     OverlapError, ConstraintError
 from deuce.drivers.sqlite import SqliteStorageDriver
-import random
-
-import deuce
-from mock import MagicMock
+from deuce.tests import DriverTest
 
 
-class SqliteStorageDriverTest(DriverTest):
+@six.add_metaclass(ABCMeta)
+class MetaDataStorageDriverTests(object):
 
+    @abstractmethod
     def create_driver(self):
-        return SqliteStorageDriver()
+        raise NotImplementedError()
 
     def test_basic_construction(self):
         driver = self.create_driver()
@@ -713,3 +718,9 @@ class SqliteStorageDriverTest(DriverTest):
 
         for vault_id in vaultids:
             driver.delete_vault(vault_id)
+
+
+class SqliteStorageDriverTest(MetaDataStorageDriverTests, DriverTest):
+
+    def create_driver(self):
+        return SqliteStorageDriver()
