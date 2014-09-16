@@ -1,15 +1,14 @@
 from abc import ABCMeta, abstractmethod
-from mock import MagicMock
-import os
 import random
+from mock import MagicMock
 
 import six
 
 import deuce
+from deuce.tests import DriverTest
 from deuce.drivers.metadatadriver import MetadataStorageDriver, GapError,\
     OverlapError, ConstraintError
 from deuce.drivers.sqlite import SqliteStorageDriver
-from deuce.tests import DriverTest
 
 
 @six.add_metaclass(ABCMeta)

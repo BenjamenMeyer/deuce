@@ -175,9 +175,6 @@ class ControllerTest(FunctionalTest):
         vault_path = '/v1.0/vaults/{0}'.format(vault_name)
         response = self.app.delete(vault_path, headers=hdrs)
 
-    def _get_block_path(self, blockid):
-        return '{0}/{1}'.format(self._blocks_path, blockid)
-
     def helper_create_files(self, num):
         params = {}
         hdrs = self._hdrs.copy()
@@ -207,9 +204,8 @@ class ControllerTest(FunctionalTest):
 
         # Put each one of the generated blocks on the
         # size
-        cnt = 0
         for size, data, sha1 in block_data:
-            path = self._get_block_path(sha1)
+            path = self.get_block_path(sha1)
 
             # NOTE: Very important to set the content-type
             # header. Otherwise pecan tries to do a UTF-8 test.
@@ -222,7 +218,6 @@ class ControllerTest(FunctionalTest):
 
             response = self.app.put(path, headers=headers,
                 params=data)
-            cnt += 1
 
 
 @six.add_metaclass(ABCMeta)
