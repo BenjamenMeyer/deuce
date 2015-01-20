@@ -7,7 +7,6 @@ deuce/log
 env
 .env
 
-doc/
 log/
 
 # Python code
