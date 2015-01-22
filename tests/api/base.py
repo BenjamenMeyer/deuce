@@ -372,9 +372,9 @@ class TestBase(fixtures.BaseTestFixture):
         data = dict([(block.Id, block.Data) for block in uploaded])
         msgpack_data = msgpack.packb(data)
         resp = self.client.upload_multiple_blocks(self.vaultname, msgpack_data)
-        if resp.status_code == 201:
-            return True
-        elif resp.status_code == 200:
+
+        if resp.status_code == 200:
+            # Query parameter was specified
             block_mapping = resp.json()
             block_id_list = [block.Id for block in uploaded]
             for block_id in block_id_list:
@@ -387,7 +387,11 @@ class TestBase(fixtures.BaseTestFixture):
                                     .format(sha1))
             return True
 
-        return 200 == resp.status_code
+        else:
+            # otherwise it must equal 201 which doesn't have a message body to
+            # verify
+            return 201 == resp.status_code
+        
 
     def upload_multiple_blocks(self, nblocks, size=30720):
         """
