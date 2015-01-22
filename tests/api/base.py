@@ -391,7 +391,6 @@ class TestBase(fixtures.BaseTestFixture):
             # otherwise it must equal 201 which doesn't have a message body to
             # verify
             return 201 == resp.status_code
-        
 
     def upload_multiple_blocks(self, nblocks, size=30720):
         """
