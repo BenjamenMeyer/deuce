@@ -224,6 +224,8 @@ class CollectionResource(object):
     @validate(vault_id=VaultGetRule)
     def on_post(self, req, resp, vault_id):
         vault = Vault.get(vault_id)
+        result_type = req.get_param_as_bool('mapping',
+                                            required=False)
         try:
             unpacked = msgpack.unpackb(req.stream.read())
 
@@ -238,10 +240,13 @@ class CollectionResource(object):
                         block_ids,
                         block_datas)
                     if retval:
-                        resp.status = falcon.HTTP_200
-                        resp.body = json.dumps({block_id: storage_id
-                                               for block_id, storage_id
-                                               in retblocks})
+                        if result_type:
+                            resp.status = falcon.HTTP_200
+                            resp.body = json.dumps({block_id: storage_id
+                                                   for block_id, storage_id
+                                                   in retblocks})
+                        else:
+                            resp.status = falcon.HTTP_201
                     else:
                         raise errors.HTTPInternalServerError('Block '
                                                             'Post Failed')

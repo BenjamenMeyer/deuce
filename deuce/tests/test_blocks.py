@@ -8,7 +8,7 @@ import ddt
 import falcon
 from mock import patch
 import msgpack
-from six.moves.urllib.parse import urlparse, parse_qs
+from six.moves.urllib.parse import urlparse, parse_qs, urlencode
 
 from deuce import conf
 from deuce.util.misc import set_qs, relative_uri
@@ -279,8 +279,9 @@ class TestBlocksController(ControllerTest):
 
         self.assertEqual(self.srmock.status, falcon.HTTP_404)
 
-    @ddt.data(True, False)
-    def test_put_and_list(self, async_status):
+    @ddt.data((True, True), (True, False), (False, False))
+    @ddt.unpack
+    def test_put_and_list(self, async_status, async_mapping):
         # Test None block_id
         path = '{0}/'.format(self.get_blocks_path(self.vault_name))
         data = os.urandom(100)
@@ -299,13 +300,14 @@ class TestBlocksController(ControllerTest):
 
         # Create 5 blocks
         block_list, response = self.helper_create_blocks(num_blocks=5,
-                                                         async=async_status)
+            async=async_status, async_mapping=async_mapping)
         self.total_block_num = 5
         self.block_list += block_list
 
         # verify all blocks in the block list also have an entry in
         # the response list
-        if async_status is True:
+        if async_status is True and async_mapping is True:
+            self.assertEqual(self.srmock.status, falcon.HTTP_200)
             self.helper_exam_block_metadata(block_list, response)
 
         # List all.
@@ -439,7 +441,8 @@ class TestBlocksController(ControllerTest):
             self.helper_create_blocks(1, async=True)
             self.assertEqual(self.srmock.status, falcon.HTTP_500)
 
-    def helper_create_blocks(self, num_blocks, async=False,
+    def helper_create_blocks(self, num_blocks,
+                             async=False, async_mapping=False,
                              singleblocksize=False, blocksize=100):
         min_size = 1
         max_size = 2000
@@ -461,10 +464,21 @@ class TestBlocksController(ControllerTest):
                 "Content-Type": "application/msgpack"
             }
             headers.update(self._hdrs)
-            response = self.simulate_post(
-                self.get_blocks_path(self.vault_name),
-                headers=headers,
-                body=request_body)
+            path = self.get_blocks_path(self.vault_name)
+            if async_mapping:
+                params = {
+                    'mapping': True
+                }
+                response = self.simulate_post(
+                    path,
+                    query_string=urlencode(params, doseq=True),
+                    headers=headers,
+                    body=request_body)
+            else:
+                response = self.simulate_post(
+                    path,
+                    headers=headers,
+                    body=request_body)
         else:
 
             # Put each one of the generated blocks on the
