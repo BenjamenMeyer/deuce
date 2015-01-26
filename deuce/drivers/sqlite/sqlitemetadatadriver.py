@@ -222,6 +222,7 @@ SQL_CREATE_FILEBLOCK_LIST = '''
     SELECT blocks.blockid, fileblocks.offset, blocks.size
     FROM blocks, fileblocks
     WHERE fileblocks.blockid = blocks.blockid
+    AND fileblocks.vaultid = blocks.vaultid
     AND fileblocks.projectid = :projectid
     AND fileblocks.vaultid = :vaultid
     AND fileblocks.fileid = :fileid
@@ -602,7 +603,7 @@ class SqliteStorageDriver(MetadataStorageDriver):
 
         return row
 
-    def mark_block_as_bad(self, vault_id, block_id, check_status=False):
+    def mark_block_as_bad(self, vault_id, block_id,):
         args = {
             'projectid': deuce.context.project_id,
             'vaultid': vault_id,
