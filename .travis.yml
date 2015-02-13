@@ -1,7 +1,12 @@
 language: python
-python:
-  - "3.3"
-  - "3.4"
+matrix:
+    include:
+        - python: "3.3"
+          env: TEST_SUITE=suite_3_3 TOX_ENV=py33
+        - python: "3.4"
+          env: TEST_SUITE=suite_3_4 TOX_ENV=py34
+        - python: "3.4"
+          env: TEST_SUITE=suite_3_4 TOX_ENV=pep8
 
 before_install:
   - sudo apt-get install build-essential python-dev
@@ -9,14 +14,10 @@ before_install:
 
 install: pip install tox setuptools virtualenv --upgrade
 
-env:
-  - TOX_ENV=py33
-  - TOX_ENV=py34
-  - TOX_ENV=pep8
-
 script: tox -v -e $TOX_ENV
 
 notifications:
   email:
     - jamie.painter@rackspace.com
     - xuan.yu@rackspace.com
+    - ben.meyer@rackspace.com
