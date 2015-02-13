@@ -78,7 +78,8 @@ class CollectionResource(object):
         # NOTE(TheSriram): get_param(param) automatically returns None
         # if param is not present
         inmarker = req.get_param('marker')
-        limit = req.get_param_as_int('limit') if req.get_param_as_int('limit') else \
+        limit = req.get_param_as_int('limit')\
+            if req.get_param_as_int('limit') else\
             conf.api_configuration.default_returned_num
 
         vaultlist = Vault.get_vaults_generator(

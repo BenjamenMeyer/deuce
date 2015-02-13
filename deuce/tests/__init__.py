@@ -17,6 +17,7 @@ import deuce.util.log as logging
 from deuce.util.misc import relative_uri
 from deuce.tests.util import MockFile
 
+
 __all__ = ['V1Base']
 
 

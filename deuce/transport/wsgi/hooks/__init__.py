@@ -19,6 +19,7 @@ def healthpingcheck(func):
             func(*args, **kwargs)
     return wrap
 
+
 from deuce.transport.wsgi.hooks.deucecontexthook import DeuceContextHook
 from deuce.transport.wsgi.hooks.openstackhook import OpenstackHook
 from deuce.transport.wsgi.hooks.openstackswifthook import OpenstackSwiftHook

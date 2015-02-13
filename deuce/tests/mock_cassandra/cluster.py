@@ -1,7 +1,9 @@
-
 import sqlite3
 import uuid
 import collections
+
+from deuce.tests.mock_cassandra import Session
+
 
 MOCK_CASSANDRA_SCHEMA = ["""
 CREATE TABLE vaults (
@@ -59,8 +61,6 @@ CREATE TABLE blockreferences (
   PRIMARY KEY(projectid, vaultid, blockid)
 );
 """]
-
-from deuce.tests.mock_cassandra import Session
 
 
 class Cluster(object):

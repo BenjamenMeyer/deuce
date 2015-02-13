@@ -1,19 +1,16 @@
-from deuce import conf
-
-from deuce.drivers.blockstoragedriver import BlockStorageDriver
-
 import hashlib
 import importlib
 
-
-from deuce.util import log
-
-logger = log.getLogger(__name__)
+from six import BytesIO
 from swiftclient.exceptions import ClientException
 
-from six import BytesIO
-
 import deuce
+from deuce import conf
+from deuce.drivers.blockstoragedriver import BlockStorageDriver
+from deuce.util import log
+
+
+logger = log.getLogger(__name__)
 
 
 class SwiftStorageDriver(BlockStorageDriver):

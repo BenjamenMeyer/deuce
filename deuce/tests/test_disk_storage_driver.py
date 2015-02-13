@@ -147,7 +147,7 @@ class DiskStorageDriverTest(V1Base):
 
         assert not driver.block_exists(vault_id, storage_id)
 
-        assert None == driver.get_block_obj(vault_id, 'invalid_block_id')
+        assert driver.get_block_obj(vault_id, 'invalid_block_id') is None
 
         assert driver.delete_vault(vault_id)
 
@@ -180,7 +180,8 @@ class DiskStorageDriverTest(V1Base):
 
             assert not driver.block_exists(vault_id, storage_id)
 
-            assert None == driver.get_block_obj(vault_id, 'invalid_block_id')
+            assert driver.get_block_obj(vault_id, 'invalid_block_id') is None
+
         assert driver.delete_vault(vault_id)
 
     def test_block_generator(self):

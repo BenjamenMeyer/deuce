@@ -188,7 +188,8 @@ class CollectionResource(object):
             raise errors.HTTPNotFound
 
         inmarker = req.get_param('marker') if req.get_param('marker') else None
-        limit = req.get_param_as_int('limit') if req.get_param_as_int('limit') else \
+        limit = req.get_param_as_int('limit')\
+            if req.get_param_as_int('limit') else\
             conf.api_configuration.default_returned_num
 
         # We actually fetch the user's requested
