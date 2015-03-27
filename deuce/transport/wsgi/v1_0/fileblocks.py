@@ -15,6 +15,7 @@ logger = logging.getLogger(__name__)
 class CollectionResource(object):
 
     @validate(req=RequestRule(OffsetMarkerRule, LimitRule),
+              resp=ResponseRule(),
               vault_id=VaultGetRule, file_id=FileGetRule)
     def on_get(self, req, resp, vault_id, file_id):
 
@@ -30,7 +31,7 @@ class CollectionResource(object):
         # NOTE(TheSriram): get_param(param) automatically returns None
         # if param is not present
         inmarker = req.get_param_as_int('marker')
-        limit = req.get_param_as_int('limit') if req.get_param_as_int('limit') \
+        limit = req.get_param_as_int('limit') if req.get_param_as_int('limit')\
             else conf.api_configuration.default_returned_num
 
         # Get the block generator from the metadata driver.
@@ -55,7 +56,8 @@ class CollectionResource(object):
 
         resp.body = json.dumps(responses)
 
-    @validate(vault_id=VaultPutRule, file_id=FilePostRuleNoneOk)
+    @validate(req=RequestRule(), resp=ResponseRule(),
+              vault_id=VaultPutRule, file_id=FilePostRuleNoneOk)
     def on_post(self, req, resp, vault_id, file_id):
         """This endpoint Assigns blocks to files
         """

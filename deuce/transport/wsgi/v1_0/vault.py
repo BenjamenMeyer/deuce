@@ -16,7 +16,8 @@ logger = logging.getLogger(__name__)
 
 class ItemResource(object):
 
-    @validate(vault_id=VaultGetRule)
+    @validate(req=RequestRule(), resp=ResponseRule(),
+              vault_id=VaultGetRule)
     def on_get(self, req, resp, vault_id):
         """Returns the statistics on vault controller object"""
         vault = Vault.get(vault_id)
@@ -29,7 +30,8 @@ class ItemResource(object):
             logger.error('Vault [{0}] does not exist'.format(vault_id))
             raise errors.HTTPNotFound
 
-    @validate(vault_id=VaultGetRule)
+    @validate(req=RequestRule(), resp=ResponseRule(),
+              vault_id=VaultGetRule)
     def on_head(self, req, resp, vault_id):
         """Returns the vault controller object"""
 
@@ -40,7 +42,8 @@ class ItemResource(object):
             logger.error('Vault [{0}] does not exist'.format(vault_id))
             raise errors.HTTPNotFound
 
-    @validate(vault_id=VaultPutRule)
+    @validate(req=RequestRule(), resp=ResponseRule(),
+              vault_id=VaultPutRule)
     def on_put(self, req, resp, vault_id):
 
         vault = Vault.create(vault_id)
@@ -51,7 +54,8 @@ class ItemResource(object):
         else:
             raise errors.HTTPInternalServerError('Vault Creation Failed')
 
-    @validate(vault_id=VaultPutRule)
+    @validate(req=RequestRule(), resp=ResponseRule(),
+              vault_id=VaultPutRule)
     def on_delete(self, req, resp, vault_id):
         vault = Vault.get(vault_id)
 
@@ -72,14 +76,15 @@ class ItemResource(object):
 
 class CollectionResource(object):
 
-    @validate(req=RequestRule(VaultMarkerRule, LimitRule))
+    @validate(req=RequestRule(VaultMarkerRule, LimitRule),
+              resp=ResponseRule())
     def on_get(self, req, resp):
 
         # NOTE(TheSriram): get_param(param) automatically returns None
         # if param is not present
         inmarker = req.get_param('marker')
-        limit = req.get_param_as_int('limit') if req.get_param_as_int('limit') else \
-            conf.api_configuration.default_returned_num
+        limit = req.get_param_as_int('limit') if req.get_param_as_int('limit')\
+            else conf.api_configuration.default_returned_num
 
         vaultlist = Vault.get_vaults_generator(
             inmarker, limit + 1)

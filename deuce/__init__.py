@@ -1,12 +1,12 @@
 """
 Deuce Global
 """
-context = None
-
 import os
 import sys
 from configobj import ConfigObj
 from validate import Validator
+
+context = None
 
 CONFIG_FILENAME = 'config.ini'
 CONFIGSPEC_FILENAME = 'configspec.ini'

@@ -106,8 +106,8 @@ class TestBlocksController(ControllerTest):
             self.assertIn('x-block-reference-count', str(self.srmock.headers))
 
     def test_head_block_nonexistent_vault(self):
-        self.simulate_head('/v1.0/vaults/mock/blocks/'
-                           + self.calc_sha1(b'mock'), headers=self._hdrs)
+        url = '/v1.0/vaults/mock/blocks/' + self.calc_sha1(b'mock')
+        self.simulate_head(url, headers=self._hdrs)
         self.assertEqual(self.srmock.status, falcon.HTTP_404)
 
     def test_head_block(self):

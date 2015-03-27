@@ -20,7 +20,8 @@ logger = logging.getLogger(__name__)
 
 class ItemResource(object):
 
-    @validate(vault_id=VaultPutRule, storage_block_id=StorageBlockPutRule)
+    @validate(req=RequestRule(), resp=ResponseRule(),
+              vault_id=VaultPutRule, storage_block_id=StorageBlockPutRule)
     def on_put(self, req, resp, vault_id, storage_block_id):
         """Note: This does not support PUT as it is read-only + DELETE
         """
@@ -63,7 +64,8 @@ class ItemResource(object):
             'This is read-only access. Uploads must go to {0:}'.format(
                 block_url))
 
-    @validate(vault_id=VaultGetRule, storage_block_id=StorageBlockGetRule)
+    @validate(req=RequestRule(), resp=ResponseRule(),
+              vault_id=VaultGetRule, storage_block_id=StorageBlockGetRule)
     def on_get(self, req, resp, vault_id, storage_block_id):
         """Returns a specific block from storage alone"""
         storage = BlockStorage.get(vault_id)
@@ -92,7 +94,8 @@ class ItemResource(object):
         resp.status = falcon.HTTP_200
         resp.content_type = 'application/octet-stream'
 
-    @validate(vault_id=VaultGetRule, storage_block_id=StorageBlockGetRule)
+    @validate(req=RequestRule(), resp=ResponseRule(),
+              vault_id=VaultGetRule, storage_block_id=StorageBlockGetRule)
     def on_head(self, req, resp, vault_id, storage_block_id):
         """Returns the block data from storage alone"""
         storage = BlockStorage.get(vault_id)
@@ -123,7 +126,8 @@ class ItemResource(object):
 
         resp.status = falcon.HTTP_204
 
-    @validate(vault_id=VaultGetRule, storage_block_id=StorageBlockGetRule)
+    @validate(req=RequestRule(), resp=ResponseRule(),
+              vault_id=VaultGetRule, storage_block_id=StorageBlockGetRule)
     def on_delete(self, req, resp, vault_id, storage_block_id):
         """Deletes a storage_block_id from a given vault_id in
         the storage after verifying it does not exist
@@ -148,7 +152,8 @@ class ItemResource(object):
 
 class CollectionResource(object):
 
-    @validate(vault_id=VaultPutRule)
+    @validate(req=RequestRule(), resp=ResponseRule(),
+              vault_id=VaultPutRule)
     def on_post(self, req, resp, vault_id):
         """Note: This does not support POST as it is read-only
         """
@@ -178,6 +183,7 @@ class CollectionResource(object):
                 block_url))
 
     @validate(req=RequestRule(StorageBlockMarkerRule, LimitRule),
+              resp=ResponseRule(),
               vault_id=VaultGetRule)
     def on_get(self, req, resp, vault_id):
         """List the blocks in the vault from storage-alone
@@ -188,8 +194,8 @@ class CollectionResource(object):
             raise errors.HTTPNotFound
 
         inmarker = req.get_param('marker') if req.get_param('marker') else None
-        limit = req.get_param_as_int('limit') if req.get_param_as_int('limit') else \
-            conf.api_configuration.default_returned_num
+        limit = req.get_param_as_int('limit') if req.get_param_as_int('limit')\
+            else conf.api_configuration.default_returned_num
 
         # We actually fetch the user's requested
         # limit +1 to detect if the list is being

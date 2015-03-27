@@ -8,12 +8,14 @@ import importlib
 
 from deuce.util import log
 
-logger = log.getLogger(__name__)
 from swiftclient.exceptions import ClientException
 
 from six import BytesIO
 
 import deuce
+
+
+logger = log.getLogger(__name__)
 
 
 class SwiftStorageDriver(BlockStorageDriver):
@@ -131,8 +133,8 @@ class SwiftStorageDriver(BlockStorageDriver):
                 content_length=str(len(blockdata)),
                 etag=mdetag,
                 response_dict=response)
-            return (response['status'] == 201
-                    and ret_etag == mdetag, storage_id)
+            return (response['status'] == 201 and
+                    ret_etag == mdetag, storage_id)
         except ClientException:
             return (False, '')
 
@@ -221,8 +223,8 @@ class SwiftStorageDriver(BlockStorageDriver):
                     name=str(storage_block_id),
                     response_dict=response)
 
-            return len(block[1]) if (response['status'] >= 200
-                                     and response['status'] < 300) else 0
+            return len(block[1]) if (response['status'] >= 200 and
+                                     response['status'] < 300) else 0
 
         except ClientException:
             return 0

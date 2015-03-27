@@ -806,8 +806,11 @@ class CassandraStorageDriver(MetadataStorageDriver):
             future = self._session.execute_async(query, args)
             futures.append((future, block_id))
 
-        exists = lambda res: CassandraStorageDriver._block_exists(
-            res, check_status)
+        def exists(res):
+            return CassandraStorageDriver._block_exists(res, check_status)
+
+        # exists = lambda res: CassandraStorageDriver._block_exists(
+        #    res, check_status)
 
         return [block_id for future, block_id in futures
                 if not exists(future.result())]

@@ -16,6 +16,7 @@ class CollectionResource(object):
 
     @validate(req=RequestRule(FileMarkerRule,
                               LimitRule),
+              resp=ResponseRule(),
               vault_id=VaultGetRule)
     def on_get(self, req, resp, vault_id):
         vault = Vault.get(vault_id)
@@ -26,7 +27,7 @@ class CollectionResource(object):
         # NOTE(TheSriram): get_param(param) automatically returns None
         # if param is not present
         inmarker = req.get_param('marker')
-        limit = req.get_param_as_int('limit') if req.get_param_as_int('limit') \
+        limit = req.get_param_as_int('limit') if req.get_param_as_int('limit')\
             else conf.api_configuration.default_returned_num
 
         # The +1 is to fetch one past the user's
@@ -51,7 +52,8 @@ class CollectionResource(object):
 
         resp.body = json.dumps([response.file_id for response in responses])
 
-    @validate(vault_id=VaultPutRule)
+    @validate(req=RequestRule(), resp=ResponseRule(),
+              vault_id=VaultPutRule)
     def on_post(self, req, resp, vault_id):
         """Initializes a new file. The location of
         the new file is returned in the Location
@@ -75,7 +77,8 @@ class CollectionResource(object):
 
 class ItemResource(object):
 
-    @validate(vault_id=VaultGetRule, file_id=FileGetRule)
+    @validate(req=RequestRule(), resp=ResponseRule(),
+              vault_id=VaultGetRule, file_id=FileGetRule)
     def on_get(self, req, resp, vault_id, file_id):
         """Fetches, re-assembles and streams a single
         file out of Deuce"""
@@ -121,7 +124,8 @@ class ItemResource(object):
         resp.set_header('Content-Length', str(vault.get_file_length(file_id)))
         resp.content_type = 'application/octet-stream'
 
-    @validate(vault_id=VaultPutRule, file_id=FilePostRuleNoneOk)
+    @validate(req=RequestRule(), resp=ResponseRule(),
+              vault_id=VaultPutRule, file_id=FilePostRuleNoneOk)
     def on_post(self, req, resp, vault_id, file_id):
         """This endpoint finalizes a file
         """
@@ -159,7 +163,8 @@ class ItemResource(object):
             resp.status = falcon.HTTP_200
             return
 
-    @validate(vault_id=VaultGetRule, file_id=FileGetRule)
+    @validate(req=RequestRule(), resp=ResponseRule(),
+              vault_id=VaultGetRule, file_id=FileGetRule)
     def on_delete(self, req, resp, vault_id, file_id):
 
         vault = Vault.get(vault_id)

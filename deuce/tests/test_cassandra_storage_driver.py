@@ -25,9 +25,9 @@ class CassandraStorageDriverTest(SqliteStorageDriverTest):
     def create_driver(self):
         return CassandraStorageDriver()
 
-    @unittest.skipIf(cassandra_mock is False
-       and ssl_enabled is False,
-       "Don't run the test if we are running without SSL")
+    @unittest.skipIf(cassandra_mock is False and
+                     ssl_enabled is False,
+                     "Don't run the test if we are running without SSL")
     def test_create_driver_auth_ssl(self):
         with patch.object(conf.metadata_driver.cassandra, 'ssl_enabled',
                           return_value=True):

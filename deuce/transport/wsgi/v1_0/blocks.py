@@ -19,7 +19,8 @@ logger = logging.getLogger(__name__)
 
 
 class ItemResource(object):
-    @validate(vault_id=VaultGetRule, block_id=BlockGetRule)
+    @validate(req=RequestRule(), resp=ResponseRule(),
+              vault_id=VaultGetRule, block_id=BlockGetRule)
     def on_head(self, req, resp, vault_id, block_id):
 
         """Checks for the existence of the block in the
@@ -77,7 +78,8 @@ class ItemResource(object):
             logger.error(ex)
             raise errors.HTTPGone(str(ex))
 
-    @validate(vault_id=VaultGetRule, block_id=BlockGetRule)
+    @validate(req=RequestRule(), resp=ResponseRule(),
+              vault_id=VaultGetRule, block_id=BlockGetRule)
     def on_get(self, req, resp, vault_id, block_id):
         """Returns a specific block"""
 
@@ -149,7 +151,8 @@ class ItemResource(object):
             logger.error(ex)
             raise errors.HTTPGone(str(ex))
 
-    @validate(vault_id=VaultPutRule, block_id=BlockPutRule)
+    @validate(req=RequestRule(), resp=ResponseRule(),
+              vault_id=VaultPutRule, block_id=BlockPutRule)
     def on_put(self, req, resp, vault_id, block_id):
         """Uploads a block into Deuce. The URL of the block
         is returned in the Location header
@@ -184,7 +187,8 @@ class ItemResource(object):
             raise errors.HTTPPreconditionFailed(
                 'content length did not match data length')
 
-    @validate(vault_id=VaultGetRule, block_id=BlockGetRule)
+    @validate(req=RequestRule(), resp=ResponseRule(),
+              vault_id=VaultGetRule, block_id=BlockGetRule)
     def on_delete(self, req, resp, vault_id, block_id):
         """Unregisters a block_id from a given vault_id in
         the storage and metadata
@@ -221,7 +225,8 @@ class ItemResource(object):
 
 class CollectionResource(object):
 
-    @validate(vault_id=VaultGetRule)
+    @validate(req=RequestRule(), resp=ResponseRule(),
+              vault_id=VaultGetRule)
     def on_post(self, req, resp, vault_id):
         vault = Vault.get(vault_id)
         try:
@@ -251,6 +256,7 @@ class CollectionResource(object):
             raise errors.HTTPBadRequestBody("Request Body not well formed")
 
     @validate(req=RequestRule(BlockMarkerRule, LimitRule),
+              resp=ResponseRule(),
               vault_id=VaultGetRule)
     def on_get(self, req, resp, vault_id):
 
@@ -261,8 +267,8 @@ class CollectionResource(object):
         # NOTE(TheSriram): get_param(param) automatically returns None
         # if param is not present
         inmarker = req.get_param('marker')
-        limit = req.get_param_as_int('limit') if req.get_param_as_int('limit') else \
-            conf.api_configuration.default_returned_num
+        limit = req.get_param_as_int('limit') if req.get_param_as_int('limit')\
+            else conf.api_configuration.default_returned_num
 
         # We actually fetch the user's requested
         # limit +1 to detect if the list is being

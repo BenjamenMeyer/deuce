@@ -200,8 +200,8 @@ class TestFiles(ControllerTest):
 
         file_id = self.create_file_id()
 
-        response = self.simulate_get(self._NOT_EXIST_files_path
-                                     + '/' + file_id,
+        response = self.simulate_get(self._NOT_EXIST_files_path +
+                                     '/' + file_id,
                                      headers=self._hdrs)
 
         self.assertEqual(self.srmock.status, falcon.HTTP_404)
@@ -233,8 +233,8 @@ class TestFiles(ControllerTest):
 
         file_id = self.create_file_id()
 
-        response = self.simulate_post(self._NOT_EXIST_files_path
-                                      + '/' + file_id,
+        response = self.simulate_post(self._NOT_EXIST_files_path +
+                                      '/' + file_id,
                                       headers=self._hdrs)
 
         self.assertEqual(self.srmock.status, falcon.HTTP_400)

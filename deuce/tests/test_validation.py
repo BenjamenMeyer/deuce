@@ -2,8 +2,8 @@ import hashlib
 from unittest import TestCase
 import uuid
 
-from falcon import request
-from stoplight import validate
+from falcon import request, response
+from stoplight import Rule, validate, validation_function
 from stoplight.exceptions import ValidationFailed
 
 from deuce.transport import validation as v
@@ -12,6 +12,14 @@ from deuce.transport.wsgi import errors
 
 class MockRequest(object):
     pass
+
+
+@validation_function
+def val_is_bool(value):
+    if not isinstance(value, bool):
+        raise ValidationFailed('Must be boolean type')
+
+BoolRule = Rule(val_is_bool(none_ok=True), lambda: v._abort(400))
 
 
 class InvalidSeparatorError(Exception):
@@ -24,6 +32,10 @@ class InvalidSeparatorError(Exception):
 
 
 class TestRulesBase(TestCase):
+
+    @staticmethod
+    def build_response():
+        return response.Response()
 
     @staticmethod
     def build_request(params=None, separator='&'):
@@ -96,6 +108,22 @@ class TestRequests(TestRulesBase):
                 v.is_request(none_ok=True)(case)
 
 
+class TestResponse(TestRulesBase):
+
+    def test_response(self):
+
+        positive_case = [TestRulesBase.build_response()]
+
+        negative_case = [MockRequest()]
+
+        for case in positive_case:
+            v.is_response(case)
+
+        for case in negative_case:
+            with self.assertRaises(ValidationFailed):
+                v.is_response(none_ok=True)(case)
+
+
 class TestVaultRules(TestRulesBase):
 
     positive_cases = [
@@ -125,8 +153,8 @@ class TestVaultRules(TestRulesBase):
     def utilize_put_vault_id(self, vault_id):
         return True
 
-    @validate(req=v.RequestRule(v.VaultMarkerRule))
-    def utilize_request(self, req, raiseme=False):
+    @validate(req=v.RequestRule(v.VaultMarkerRule), raiseme=BoolRule)
+    def utilize_request(self, req, raiseme):
         if raiseme:
             raise RuntimeError('QUERY_STRING: {0}'.format(req.query_string))
         else:
@@ -166,7 +194,7 @@ class TestVaultRules(TestRulesBase):
         for vault_id in positive_cases:
             vault_id_req = TestRulesBase.build_request(params=[('marker',
                                                                 vault_id)])
-            self.assertTrue(self.utilize_request(vault_id_req))
+            self.assertTrue(self.utilize_request(vault_id_req, raiseme=False))
 
         # We currently skip the negative test for the VaultMarkerRule
         # due to the nature of the negative cases for the Vault Name.
@@ -231,8 +259,8 @@ class TestMetadataBlockRules(TestRulesBase):
     def utilize_post_metadata_block_id_none_okay(self, metadata_block_id):
         return True
 
-    @validate(req=v.RequestRule(v.BlockMarkerRule))
-    def utilize_request(self, req, raiseme=False):
+    @validate(req=v.RequestRule(v.BlockMarkerRule), raiseme=BoolRule)
+    def utilize_request(self, req, raiseme):
         if raiseme:
             raise RuntimeError('QUERY_STRING: {0}'.format(req.query_string))
         else:
@@ -314,7 +342,7 @@ class TestMetadataBlockRules(TestRulesBase):
         for block_id in positive_cases:
             block_id_req = TestRulesBase.build_request(params=[('marker',
                                                                 block_id)])
-            self.assertTrue(self.utilize_request(block_id_req))
+            self.assertTrue(self.utilize_request(block_id_req, raiseme=False))
 
         for block_id in negative_cases:
             block_id_req = TestRulesBase.build_request(params=[('marker',
@@ -355,8 +383,8 @@ class TestStorageBlockRules(TestRulesBase):
     def utilize_put_storage_block_id_none_okay(self, storage_block_id):
         return True
 
-    @validate(req=v.RequestRule(v.StorageBlockMarkerRule))
-    def utilize_request(self, req, raiseme=False):
+    @validate(req=v.RequestRule(v.StorageBlockMarkerRule), raiseme=BoolRule)
+    def utilize_request(self, req, raiseme):
         if raiseme:
             raise RuntimeError('QUERY_STRING: {0}'.format(req.query_string))
         else:
@@ -418,7 +446,8 @@ class TestStorageBlockRules(TestRulesBase):
         for storage_id in positive_cases:
             storage_id_req = TestRulesBase.build_request(params=[('marker',
                                                                 storage_id)])
-            self.assertTrue(self.utilize_request(storage_id_req))
+            self.assertTrue(self.utilize_request(storage_id_req,
+                                                 raiseme=False))
 
         for storage_id in negative_cases:
             storage_id_req = TestRulesBase.build_request(params=[('marker',
@@ -464,8 +493,8 @@ class TestFileRules(TestRulesBase):
     def utilize_file_id_post_none_okay(self, file_id):
         return True
 
-    @validate(req=v.RequestRule(v.FileMarkerRule))
-    def utilize_request(self, req, raiseme=False):
+    @validate(req=v.RequestRule(v.FileMarkerRule), raiseme=BoolRule)
+    def utilize_request(self, req, raiseme):
         if raiseme:
             raise RuntimeError('QUERY_STRING: {0}'.format(req.query_string))
         else:
@@ -547,7 +576,7 @@ class TestFileRules(TestRulesBase):
         for file_id in positive_cases:
             file_id_req = TestRulesBase.build_request(params=[('marker',
                                                                file_id)])
-            self.assertTrue(self.utilize_request(file_id_req))
+            self.assertTrue(self.utilize_request(file_id_req, raiseme=False))
 
         for file_id in negative_cases:
             file_id_req = TestRulesBase.build_request(params=[('marker',
@@ -570,8 +599,8 @@ class TestOffsetRules(TestRulesBase):
         None
     ]
 
-    @validate(req=v.RequestRule(v.OffsetMarkerRule))
-    def utilize_request(self, req, raiseme=False):
+    @validate(req=v.RequestRule(v.OffsetMarkerRule), raiseme=BoolRule)
+    def utilize_request(self, req, raiseme):
         if raiseme:
             raise RuntimeError('QUERY_STRING: {0}'.format(req.query_string))
         else:
@@ -593,7 +622,7 @@ class TestOffsetRules(TestRulesBase):
         for offset in positive_cases:
             offset_req = TestRulesBase.build_request(params=[('marker',
                                                               offset)])
-            self.assertTrue(self.utilize_request(offset_req))
+            self.assertTrue(self.utilize_request(offset_req, raiseme=False))
 
         for offset in negative_cases:
             offset_req = TestRulesBase.build_request(params=[('marker',
@@ -612,8 +641,8 @@ class TestLimitRules(TestRulesBase):
         '-1', 'blah', None
     ]
 
-    @validate(req=v.RequestRule(v.LimitRule))
-    def utilize_request(self, req, raiseme=False):
+    @validate(req=v.RequestRule(v.LimitRule), raiseme=BoolRule)
+    def utilize_request(self, req, raiseme):
         if raiseme:
             raise RuntimeError('QUERY_STRING: {0}'.format(req.query_string))
         else:
@@ -644,7 +673,7 @@ class TestLimitRules(TestRulesBase):
         for limit in positive_cases:
             limit_req = TestRulesBase.build_request(params=[('limit',
                                                              limit)])
-            self.assertTrue(self.utilize_request(limit_req))
+            self.assertTrue(self.utilize_request(limit_req, raiseme=False))
 
         for limit in negative_cases:
             limit_req = TestRulesBase.build_request(params=[('limit',

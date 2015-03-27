@@ -67,6 +67,12 @@ def is_request(value):
         raise ValidationFailed('Input must be a request')
 
 
+@validation_function
+def is_response(value):
+    if not isinstance(value, falcon.response.Response):
+        raise ValidationFailed('Input must be a response')
+
+
 def _abort(status_code):
     abort_errors = {
         400: errors.HTTPBadRequestAPI('Invalid Request'),
@@ -101,11 +107,38 @@ class RequestRule(Rule):
                       nested_rules=list(nested_rules))
 
 
+class ResponseRule(Rule):
+
+    def __init__(self, *nested_rules):
+        """Constructs a new Rule for validating requests. Any
+        nested rules needed for validating parts of the request
+        (such as headers, query string params, etc) should
+        also be passed in.
+
+        :param nested_rules: Any sub rules that also should be
+          used for validation
+        """
+        # If we get something that's not a request here,
+        # something bad happened in the server (i.e.
+        # maybe a programming error), so return a 500
+
+        # NOTE(TheSriram): One should not be creating a generic empty
+        # RequestRule, a list of rules always needs to be passed in as
+        # arguments.
+        # Example: RequestRule(OffsetMarkerRule, LimitRule)
+        Rule.__init__(self,
+                      vfunc=is_response(none_ok=True),  # pragma: no cover
+                      errfunc=lambda: _abort(500),
+                      nested_rules=list(nested_rules))
+
+
 class QueryStringRule(Rule):
 
     def __init__(self, querystring_name, vfunc, errfunc):
-        getter = lambda req: req.get_param(querystring_name)
-        Rule.__init__(self, vfunc=vfunc, getter=getter, errfunc=errfunc)
+        Rule.__init__(self,
+                      vfunc=vfunc,
+                      getter=lambda req: req.get_param(querystring_name),
+                      errfunc=errfunc)
 
 # parameter rules
 VaultGetRule = Rule(val_vault_id(), lambda: _abort(404))

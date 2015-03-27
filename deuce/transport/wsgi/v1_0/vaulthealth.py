@@ -11,7 +11,8 @@ logger = logging.getLogger(__name__)
 
 
 class CollectionResource(object):
-    @validate(vault_id=VaultGetRule)
+    @validate(req=RequestRule(), resp=ResponseRule(),
+              vault_id=VaultGetRule)
     def on_get(self, req, resp, vault_id):
         """Returns the statistics on vault controller object"""
         vault = Vault.get(vault_id)
