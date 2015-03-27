@@ -280,6 +280,14 @@ SQL_MARK_BLOCK_AS_BAD = '''
     blockid = :blockid
 '''
 
+SQL_MARK_BLOCK_AS_GOOD = '''
+    UPDATE blocks SET
+    isinvalid = 0 WHERE
+    projectid = :projectid AND
+    vaultid = :vaultid AND
+    blockid = :blockid
+'''
+
 SQL_GET_BLOCK_STATUS = '''
     SELECT isinvalid
     FROM blocks
@@ -682,6 +690,27 @@ class SqliteStorageDriver(MetadataStorageDriver):
             return False
 
         return True
+
+    def reset_block_status(self, vault_id, marker=None, limit=None):
+
+        blocks = self.create_block_generator(vault_id, marker,
+                                             self._determine_limit(limit))
+
+        def mark_block_as_good(vault_id, block_id):
+            args = {
+                'projectid': deuce.context.project_id,
+                'vaultid': vault_id,
+                'blockid': block_id
+            }
+
+            self._conn.execute(SQL_MARK_BLOCK_AS_GOOD, args)
+            self._conn.commit()
+
+        for block in blocks:
+            mark_block_as_good(vault_id, block)
+
+        return blocks[-1:][0] if len(blocks) == \
+            self._determine_limit(limit) else None
 
     def has_block(self, vault_id, block_id, check_status=False):
         # Query the blocks table

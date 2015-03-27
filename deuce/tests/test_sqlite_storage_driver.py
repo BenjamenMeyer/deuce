@@ -1,15 +1,16 @@
+import ddt
+from mock import MagicMock
+import random
+
 from deuce.tests import V1Base
 from deuce.drivers.metadatadriver import MetadataStorageDriver, GapError,\
     OverlapError, ConstraintError
 from deuce.drivers.sqlite import SqliteStorageDriver
 from deuce.drivers import BlockStorageDriver
-import random
-
 import deuce
 
-from mock import MagicMock
 
-
+@ddt.ddt
 class SqliteStorageDriverTest(V1Base):
 
     def _genstorageid(self, blockid):
@@ -881,6 +882,68 @@ class SqliteStorageDriverTest(V1Base):
         driver.finalize_file(vault_id,
                              file_id,
                              1024 * len(bad_block_ids))
+
+    @ddt.data(50, 100, 150, 200)
+    def test_reset_block_status(self, total_blocks):
+        driver = self.create_driver()
+        vault_id = self.create_vault_id()
+
+        num_blocks = total_blocks
+
+        block_ids = ['block_{0}'.format(id) for id in range(0, num_blocks)]
+
+        def reset_block_status_marker(marker):
+            return driver.reset_block_status(vault_id,
+                    marker=marker)
+        # reset block status, across the vault
+
+        def reset_block_status():
+
+            marker = None
+            while True:
+                end_marker = reset_block_status_marker(marker)
+                if end_marker:
+                    marker = end_marker
+                else:
+                    break
+
+        # Reset block status, when there are no blocks in the vault
+        reset_block_status()
+
+        for bid in block_ids:
+            driver.register_block(vault_id, bid,
+                self._genstorageid(bid), 1024)
+
+        # All of these blocks should exist, and none should be bad.
+        for bid in block_ids:
+            self.assertEqual(driver.has_block(vault_id, bid,
+                check_status=False), True)
+
+            self.assertEqual(driver.has_block(vault_id, bid,
+                check_status=True), True)
+
+        # Now check has_blocks. None of the blocks are bad so
+        # the list returned should be empty
+        self.assertEqual(driver.has_blocks(vault_id, block_ids,
+            check_status=True), [])
+
+        # mark blocks as bad, across the vault
+        for bid in block_ids:
+            driver.mark_block_as_bad(vault_id, bid)
+
+        # Now check has_blocks. All of the blocks are bad so
+        # the list returned should be all the blocks in the vault.
+
+        self.assertEqual(driver.has_blocks(vault_id, block_ids,
+            check_status=True), block_ids)
+
+        # Reset block status for all blocks under the given vault
+        reset_block_status()
+
+        # Now check has_blocks. None of the blocks are bad so
+        # the list returned should be empty
+        self.assertEqual(driver.has_blocks(vault_id, block_ids,
+            check_status=True), [])
 
     def test_file_block_generator_marker_limit(self):
         driver = self.create_driver()
