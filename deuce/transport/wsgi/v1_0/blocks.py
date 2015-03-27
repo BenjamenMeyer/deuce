@@ -293,7 +293,8 @@ class CollectionResource(object):
         resp.body = json.dumps([response.metadata_block_id
                                 for response in responses])
 
-    @validate(vault_id=VaultGetRule)
+    @validate(req=RequestRule(), resp=ResponseRule(),
+              vault_id=VaultGetRule)
     def on_patch(self, req, resp, vault_id):
 
         vault = Vault.get(vault_id)
